@@ -1,0 +1,25 @@
+server:
+  port: 8080
+
+spring:
+  config:
+    import: global.properties
+  main:
+    web-application-type: servlet
+  datasource:
+    url: jdbc:postgresql://localhost:5432/db-name
+    username: username_here
+    password: "your-password"
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+    database: postgresql
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+  data:
+    rest:
+      base-path: /api/v1
