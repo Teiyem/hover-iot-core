@@ -6,7 +6,6 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -24,7 +23,6 @@ import java.io.IOException;
  * with the token
  */
 @Component
-@RequiredArgsConstructor
 public class AuthenticationFilter extends OncePerRequestFilter {
 
     /**
@@ -35,7 +33,17 @@ public class AuthenticationFilter extends OncePerRequestFilter {
     /**
      * A service that is used to create and verify access and refresh tokens.
      */
-    private final ITokenService mTokenService;
+    private final ITokenService tokenService;
+
+    /**
+     * Initializes a new instance of {@link AuthenticationFilter} class with the given arguments.
+     * @param userDetailsService The user details service used to load user-specific data.
+     * @param tokenService The token service used to generate and validate tokens.
+     */
+    public AuthenticationFilter(UserDetailsService userDetailsService, ITokenService tokenService) {
+        this.userDetailsService = userDetailsService;
+        this.tokenService = tokenService;
+    }
 
     /**
      * If the request has a valid access token, then set the authentication context to the user associated
@@ -55,12 +63,12 @@ public class AuthenticationFilter extends OncePerRequestFilter {
         }
 
         final String token = header.substring(7);
-        final String username = mTokenService.extractUsername(token, TokenType.ACCESS);
+        final String username = tokenService.extractUsername(token, TokenType.ACCESS);
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails user = this.userDetailsService.loadUserByUsername(username);
 
-            if (mTokenService.isTokenValid(token, user, TokenType.ACCESS)) {
+            if (tokenService.isTokenValid(token, user, TokenType.ACCESS)) {
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(user,
                         null, user.getAuthorities());
 

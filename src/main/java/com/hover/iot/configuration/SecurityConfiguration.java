@@ -1,7 +1,7 @@
 package com.hover.iot.configuration;
 
+import com.hover.iot.response.ApiResponse;
 import com.hover.iot.util.AuthenticationFilter;
-import lombok.AllArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,7 +20,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
  */
 @Configuration
 @EnableWebSecurity
-@AllArgsConstructor
 public class SecurityConfiguration {
 
     /**
@@ -40,6 +39,16 @@ public class SecurityConfiguration {
      * A bean that is used to authenticate the user.
      */
     private final AuthenticationProvider authenticationProvider;
+
+    /**
+     * Initializes a new instance of {@link ApiResponse} class with the given arguments.
+     * @param authenticationFilter The authentication filter used to handle incoming authentication requests.
+     * @param authenticationProvider The authentication provider used to verify user credentials.
+     */
+    public SecurityConfiguration(AuthenticationFilter authenticationFilter, AuthenticationProvider authenticationProvider) {
+        this.authenticationFilter = authenticationFilter;
+        this.authenticationProvider = authenticationProvider;
+    }
 
     /**
      * Returns a Spring Security filter chain.

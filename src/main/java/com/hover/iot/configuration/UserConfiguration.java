@@ -2,7 +2,6 @@ package com.hover.iot.configuration;
 
 import com.hover.iot.model.User;
 import com.hover.iot.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,13 +19,21 @@ import org.springframework.security.crypto.password.PasswordEncoder;
  * such as an authentication provider, user details service, and password encoder.
  */
 @Configuration
-@RequiredArgsConstructor
 public class UserConfiguration {
 
     /**
      * A repository that provides CRUD operations for the {@link User} class.
      */
     private final UserRepository userRepository;
+
+    /**
+     * Initializes a new instance of {@link UserConfiguration} class with the given argument.
+     *
+     * @param userRepository The repository that is used for user specific CRUD operations.
+     */
+    public UserConfiguration(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     /**
      * Returns an implementation of the UserDetailsService interface, which is responsible for
