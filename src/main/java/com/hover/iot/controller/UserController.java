@@ -1,12 +1,10 @@
 package com.hover.iot.controller;
 
-import com.hover.iot.request.LoginRequest;
-import com.hover.iot.request.LogoutRequest;
-import com.hover.iot.request.RefreshRequest;
-import com.hover.iot.request.RegisterRequest;
+import com.hover.iot.request.*;
+import com.hover.iot.response.ApiResponse;
 import com.hover.iot.response.AuthenticationResponse;
 import com.hover.iot.service.IUserService;
-import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -18,13 +16,20 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/api/v1/user")
-@RequiredArgsConstructor
 public class UserController {
 
     /**
-     * The IUserService instance that is used to handle user authentication requests.
+     * The user service that is used to handle user authentication requests.
      */
     private final IUserService userService;
+
+    /**
+     * Initializes a new instance of {@link UserController} class.
+     * @param userService The user service that is used to handle user authentication requests.
+     */
+    public UserController(IUserService userService) {
+        this.userService = userService;
+    }
 
     /**
      * Handles a request to register a new user.
@@ -33,8 +38,12 @@ public class UserController {
      * @return a ResponseEntity containing an AuthenticationResponse object with the user's access and refresh tokens
      */
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody RegisterRequest request) {
-        return ResponseEntity.ok(userService.register(request));
+    public ResponseEntity<ApiResponse<Object>> register(@RequestBody RegisterRequest request) {
+        var message = userService.register(request);
+
+        var response = new ApiResponse<>(HttpStatus.OK, message);
+
+        return new ResponseEntity<>(response, response.getStatus());
     }
 
     /**
@@ -44,9 +53,12 @@ public class UserController {
      * @return a ResponseEntity containing an AuthenticationResponse object with the user's access and refresh tokens
      */
     @PostMapping("/login")
-    public ResponseEntity<AuthenticationResponse> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<ApiResponse<AuthenticationResponse>> login(@RequestBody LoginRequest request) {
         var result = userService.login(request);
-        return ResponseEntity.ok(result);
+
+        var response = new ApiResponse<>(HttpStatus.OK, result);
+
+        return new ResponseEntity<>(response, response.getStatus());
     }
 
     /**
@@ -56,8 +68,12 @@ public class UserController {
      * @return a ResponseEntity containing an AuthenticationResponse object with the user's new access token
      */
     @PostMapping("/refresh")
-    public ResponseEntity<AuthenticationResponse> refresh(@RequestBody RefreshRequest request) {
-        return ResponseEntity.ok(userService.refresh(request));
+    public ResponseEntity<ApiResponse<AuthenticationResponse>> refresh(@RequestBody RefreshRequest request) {
+        var result = userService.refresh(request);
+
+        var response = new ApiResponse<>(HttpStatus.OK, result);
+
+        return new ResponseEntity<>(response, response.getStatus());
     }
 
     /**
@@ -67,8 +83,11 @@ public class UserController {
      * @return a ResponseEntity with HTTP status code 200 indicating successful logout
      */
     @PostMapping("/logout")
-    public ResponseEntity.BodyBuilder logout(@RequestBody LogoutRequest request) {
+    public ResponseEntity<ApiResponse<Object>> logout(@RequestBody LogoutRequest request) {
         userService.logout(request);
-        return ResponseEntity.ok();
+
+        var response = new ApiResponse<>(HttpStatus.OK, "Successful logout");
+
+        return new ResponseEntity<>(response, response.getStatus());
     }
 }
