@@ -1,22 +1,46 @@
 package com.hover.iot.response;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-
 /**
- * The AuthenticationResponse class represents a response containing the authentication and refresh tokens.
+ * The {@link AuthenticationResponse} class represents a response containing the authentication and refresh tokens.
  */
-@Data
-@AllArgsConstructor
 public class AuthenticationResponse {
 
     /**
      * The user's authentication token.
      */
-    private String token;
+    private final String token;
 
     /**
      * The user's refresh token.
      */
-    private String refreshToken;
+    private final String refreshToken;
+
+    /**
+     * Initializes a new instance of {@link AuthenticationResponse} class with the given token and refreshToken.
+     *
+     * @param token        The user's authentication token.
+     * @param refreshToken The user's refresh token.
+     */
+    public AuthenticationResponse(String token, String refreshToken) {
+        this.token = token;
+        this.refreshToken = refreshToken;
+    }
+
+    /**
+     * Gets the user's authentication token.
+     *
+     * @return The user's authentication token.
+     */
+    public String getToken() {
+        return token;
+    }
+
+    /**
+     * Gets the user's refresh token.
+     *
+     * @return The user's refresh token.
+     */
+    public String getRefreshToken() {
+        return refreshToken;
+    }
 }

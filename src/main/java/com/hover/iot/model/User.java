@@ -2,10 +2,6 @@ package com.hover.iot.model;
 
 import com.hover.iot.enumeration.Role;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -16,10 +12,6 @@ import java.util.List;
 /**
  * User model class.
  */
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 @Entity
 @Table(name = "tbl_user")
 public class User implements UserDetails {
@@ -67,7 +59,88 @@ public class User implements UserDetails {
     private Role role;
 
     /**
-     * This function returns a list of all the roles that the user has.
+     * Initializes a new instance of {@link User} class. Default Constructor.
+     */
+    public User() {
+    }
+
+    /**
+     * Initializes a new instance of {@link User} class with the given arguments.
+     * @param name The user's name.
+     * @param username The user's name.
+     * @param password The user's password.
+     * @param tokens The user's tokens.
+     * @param role The user's role.
+     */
+    public User(String name, String username, String password, List<String> tokens, Role role) {
+        this.name = name;
+        this.username = username;
+        this.password = password;
+        this.tokens = tokens;
+        this.role = role;
+    }
+
+    /**
+     * Initializes a new instance of {@link User} class with the given arguments.
+     * @param id The user's id.
+     * @param name The user's name.
+     * @param username The user's name.
+     * @param password The user's password.
+     * @param tokens The user's tokens.
+     * @param role The user's role.
+     */
+    public User(Integer id, String name, String username, String password, List<String> tokens, Role role) {
+        this.id = id;
+        this.name = name;
+        this.username = username;
+        this.password = password;
+        this.tokens = tokens;
+        this.role = role;
+    }
+
+
+    /**
+     * Gets the user's id.
+     * @return The user's id.
+     */
+    public Integer getId() {
+        return id;
+    }
+
+    /**
+     * Gets the user's name.
+     * @return The user's name.
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * Gets the user's tokens.
+     * @return The user's tokens.
+     */
+    public List<String> getTokens() {
+        return tokens;
+    }
+
+    /**
+     * Gets the user's role.
+     * @return The user's role.
+     */
+    public Role getRole() {
+        return role;
+    }
+
+    /**
+     * Sets the user's tokens.
+     * @param tokens The user's tokens to set.
+     */
+    public void setTokens(List<String> tokens) {
+        this.tokens = tokens;
+    }
+
+    /**
+     * Gets a list of all the roles that the user has.
      *
      * @return A list of SimpleGrantedAuthority objects.
      */
@@ -77,7 +150,7 @@ public class User implements UserDetails {
     }
 
     /**
-     * It returns the password of the user.
+     * Gets the user's password of the user.
      *
      * @return The password.
      */
@@ -97,7 +170,8 @@ public class User implements UserDetails {
     }
 
     /**
-     * This function returns true if the account is not expired.
+     * Gets of if the account is not expired.
+     * @return true.
      */
     @Override
     public boolean isAccountNonExpired() {
@@ -105,7 +179,8 @@ public class User implements UserDetails {
     }
 
     /**
-     * This function returns true if the account is not locked, false otherwise.
+     * Gets of if the account is not locked.
+     * @return true.
      */
     @Override
     public boolean isAccountNonLocked() {
@@ -113,7 +188,8 @@ public class User implements UserDetails {
     }
 
     /**
-     * If the user is not expired, then return true.
+     * Gets if the user is not expired.
+     * @return true.
      */
     @Override
     public boolean isCredentialsNonExpired() {
@@ -121,7 +197,8 @@ public class User implements UserDetails {
     }
 
     /**
-     * If the user is enabled, return true.
+     * Gets if the user is enabled
+     * @return true.
      */
     @Override
     public boolean isEnabled() {

@@ -2,6 +2,7 @@ package com.hover.iot.service.implementation;
 
 import com.hover.iot.enumeration.Role;
 import com.hover.iot.enumeration.TokenType;
+import com.hover.iot.exception.ResourceConflictException;
 import com.hover.iot.model.User;
 import com.hover.iot.repository.UserRepository;
 import com.hover.iot.request.LoginRequest;
@@ -11,10 +12,7 @@ import com.hover.iot.request.RegisterRequest;
 import com.hover.iot.response.AuthenticationResponse;
 import com.hover.iot.service.ITokenService;
 import com.hover.iot.service.IUserService;
-import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -28,19 +26,44 @@ import java.util.List;
  * A service class that handles operations related to users such as registration, login, token creation,
  * and logout. Implements the {@link IUserService} interface.
  */
-@RequiredArgsConstructor
 @Service
 public class UserService implements IUserService {
 
+    /**
+     * The user repository that is used for user data storage and retrieval.
+     */
     private final UserRepository userRepository;
 
+    /**
+     * The password encoder that is used for user password hashing and validation.
+     */
     private final PasswordEncoder passwordEncoder;
 
+    /**
+     * The token service that is used for token generation and management.
+     */
     private final ITokenService tokenService;
 
+    /**
+     * The authentication manager to use for user authentication.
+     */
     private final AuthenticationManager authenticationManager;
 
-    protected final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
+    /**
+     * Initializes a new instance of {@link UserService} class with the given arguments.
+     *
+     * @param userRepository        The user repository to use for user data storage and retrieval.
+     * @param passwordEncoder       The password encoder to use for user password hashing and validation.
+     * @param tokenService          The token service to use for token generation and management.
+     * @param authenticationManager The authentication manager to use for user authentication.
+     */
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, ITokenService tokenService,
+                       AuthenticationManager authenticationManager) {
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.tokenService = tokenService;
+        this.authenticationManager = authenticationManager;
+    }
 
     /**
      * Registers a new user and returns an authentication response containing an access token and a refresh token.
@@ -50,19 +73,13 @@ public class UserService implements IUserService {
      */
     @Override
     public String register(@NotNull RegisterRequest request) {
-        var user = User.builder().name(request.getName())
-                .username(request.getUsername())
-                .password(passwordEncoder.encode(request.getPassword()))
-                .role(Role.USER)
-                .tokens(new ArrayList<>())
-                .build();
+        var user = new User(request.getName(), request.getUsername(),
+                passwordEncoder.encode(request.getPassword()), new ArrayList<>(),Role.USER);
 
         try {
             userRepository.save(user);
-        }
-        catch (Exception exception) {
-            LOGGER.info(exception.getMessage());
-            return "Failed to register user";
+        } catch (Exception exception) {
+            throw new ResourceConflictException("Failed to register user");
         }
 
         return "Successfully registered user";
@@ -124,11 +141,11 @@ public class UserService implements IUserService {
      */
     @Override
     public void logout(@NotNull LogoutRequest request) {
-        var user = userRepository.findByTokensContaining(request.getToken())
+        var user = userRepository.findByTokensContaining(request.getRefreshToken())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
         List<String> tokens = new ArrayList<>(user.getTokens());
-        tokens.remove(request.getToken());
+        tokens.remove(request.getRefreshToken());
         user.setTokens(tokens);
 
         userRepository.save(user);
