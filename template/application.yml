@@ -20,6 +20,3 @@ spring:
         format_sql: true
     database: postgresql
     database-platform: org.hibernate.dialect.PostgreSQLDialect
-  data:
-    rest:
-      base-path: /api/v1
