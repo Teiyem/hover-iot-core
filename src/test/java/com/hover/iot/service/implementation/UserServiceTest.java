@@ -1,4 +1,4 @@
-package com.hover.iot.implementation;
+package com.hover.iot.service.implementation;
 
 import com.hover.iot.enumeration.Role;
 import com.hover.iot.enumeration.TokenType;
