@@ -1,21 +1,30 @@
 package com.hover.iot.request;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.hover.iot.model.User;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 /**
  * A representation of a request object to log out a {@link User}.
  */
-@Data
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor
 public class LogoutRequest {
     /**
-     * The user's authentication token.
+     * The user's refresh the token.
      */
-    private String token;
+    private final String refreshToken;
+
+    /**
+     * Initializes a new instance of {@link LogoutRequest} class.
+     *
+     * @param refreshToken The user's refresh the token.
+     */
+    public LogoutRequest(@JsonProperty("refreshToken") String refreshToken) {
+        this.refreshToken = refreshToken;
+    }
+
+    /**
+     * Gets the user's refresh the token.
+     */
+    public String getRefreshToken() {
+        return refreshToken;
+    }
 }
