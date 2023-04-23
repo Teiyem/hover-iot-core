@@ -4,9 +4,6 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
-/src/main/resources/global.properties
-/src/main/resources/application.yml
-
 ### STS ###
 .apt_generated
 .classpath
