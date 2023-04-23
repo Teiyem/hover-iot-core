@@ -1,12 +1,10 @@
 package com.hover.iot.controller;
 
-import com.hover.iot.enumeration.Role;
 import com.hover.iot.model.User;
 import com.hover.iot.repository.UserRepository;
 import com.hover.iot.request.LoginRequest;
-import com.hover.iot.request.LogoutRequest;
-import com.hover.iot.request.RefreshRequest;
 import com.hover.iot.request.RegisterRequest;
+import com.hover.iot.request.TokenRequest;
 import com.hover.iot.response.ApiResponse;
 import com.hover.iot.response.AuthenticationResponse;
 import org.junit.jupiter.api.BeforeEach;
@@ -44,7 +42,7 @@ public class UserControllerTest {
     @BeforeEach
     public void setupUser() {
         User user = new User("Test", "testUser", passwordEncoder.encode("password"),
-                new ArrayList<>(), Role.USER);
+                new ArrayList<>());
 
         userRepository.save(user);
     }
@@ -84,7 +82,7 @@ public class UserControllerTest {
                 .uri("/api/v1/user/register")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(Mono.just(request), RefreshRequest.class)
+                .body(Mono.just(request), TokenRequest.class)
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(ApiResponse.class)
@@ -169,7 +167,8 @@ public class UserControllerTest {
         String accessToken = authResponse.getToken();
         String refreshToken = authResponse.getRefreshToken();
 
-        RefreshRequest request = new RefreshRequest(accessToken, refreshToken);
+        TokenRequest request = new TokenRequest();
+        request.setToken(refreshToken);
 
         AuthenticationResponse refreshResponse = Objects.requireNonNull(webTestClient.post()
                 .uri("/api/v1/user/refresh")
@@ -205,7 +204,8 @@ public class UserControllerTest {
 
         // Given
         String accessToken = authResponse.getToken();
-        LogoutRequest request = new LogoutRequest(authResponse.getRefreshToken());
+        TokenRequest request = new TokenRequest();
+        request.setToken(authResponse.getRefreshToken());
 
         // When And Then
         webTestClient.post()

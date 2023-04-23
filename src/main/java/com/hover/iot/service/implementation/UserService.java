@@ -1,14 +1,10 @@
 package com.hover.iot.service.implementation;
 
-import com.hover.iot.enumeration.Role;
 import com.hover.iot.enumeration.TokenType;
 import com.hover.iot.exception.ResourceConflictException;
 import com.hover.iot.model.User;
 import com.hover.iot.repository.UserRepository;
-import com.hover.iot.request.LoginRequest;
-import com.hover.iot.request.LogoutRequest;
-import com.hover.iot.request.RefreshRequest;
-import com.hover.iot.request.RegisterRequest;
+import com.hover.iot.request.*;
 import com.hover.iot.response.AuthenticationResponse;
 import com.hover.iot.service.ITokenService;
 import com.hover.iot.service.IUserService;
@@ -74,7 +70,7 @@ public class UserService implements IUserService {
     @Override
     public String register(@NotNull RegisterRequest request) {
         var user = new User(request.getName(), request.getUsername(),
-                passwordEncoder.encode(request.getPassword()), new ArrayList<>(),Role.USER);
+                passwordEncoder.encode(request.getPassword()), new ArrayList<>());
 
         try {
             userRepository.save(user);
@@ -120,32 +116,32 @@ public class UserService implements IUserService {
      * Refreshes an access token using a refresh token and returns an authentication response containing
      * the new access token and refresh token.
      *
-     * @param request The refresh request containing the old access token and refresh token.
+     * @param request The token request containing the user's refresh token.
      * @return An {@link AuthenticationResponse} containing a new access token and refresh token.
      */
     @Override
-    public AuthenticationResponse refresh(@NotNull RefreshRequest request) {
+    public AuthenticationResponse refresh(@NotNull TokenRequest request) {
 
-        var user = userRepository.findByTokensContaining(request.getRefreshToken())
+        var user = userRepository.findByTokensContaining(request.getToken())
                 .orElseThrow();
 
         var token = tokenService.createToken(user, TokenType.ACCESS);
 
-        return new AuthenticationResponse(token, request.getRefreshToken());
+        return new AuthenticationResponse(token, request.getToken());
     }
 
     /**
-     * Logs out a user by invalidating their authentication token.
+     * Logs out a user by invalidating their refresh authentication token.
      *
-     * @param request The logout request containing the user's authentication token.
+     * @param request The token request containing the user's refresh token.
      */
     @Override
-    public void logout(@NotNull LogoutRequest request) {
-        var user = userRepository.findByTokensContaining(request.getRefreshToken())
+    public void logout(@NotNull TokenRequest request) {
+        var user = userRepository.findByTokensContaining(request.getToken())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
         List<String> tokens = new ArrayList<>(user.getTokens());
-        tokens.remove(request.getRefreshToken());
+        tokens.remove(request.getToken());
         user.setTokens(tokens);
 
         userRepository.save(user);

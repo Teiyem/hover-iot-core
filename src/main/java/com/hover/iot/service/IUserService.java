@@ -1,9 +1,6 @@
 package com.hover.iot.service;
 
-import com.hover.iot.request.LoginRequest;
-import com.hover.iot.request.LogoutRequest;
-import com.hover.iot.request.RefreshRequest;
-import com.hover.iot.request.RegisterRequest;
+import com.hover.iot.request.*;
 import com.hover.iot.response.AuthenticationResponse;
 import org.jetbrains.annotations.NotNull;
 
@@ -32,15 +29,15 @@ public interface IUserService {
      * Refreshes an access token using a refresh token and returns an authentication response containing
      * the new access token and refresh token.
      *
-     * @param request The refresh request containing the old access token and refresh token.
+     * @param request The token request containing the user's refresh token.
      * @return An {@link AuthenticationResponse} containing a new access token and refresh token.
      */
-    AuthenticationResponse refresh(RefreshRequest request);
+    AuthenticationResponse refresh(@NotNull TokenRequest request);
 
     /**
-     * Logs out a user by invalidating their authentication token.
+     * Logs out a user by invalidating their refresh authentication token.
      *
-     * @param request The logout request containing the user's authentication token.
+     * @param request The token request containing the user's refresh token.
      */
-    void logout(LogoutRequest request);
+    void logout(@NotNull TokenRequest request);
 }

@@ -1,14 +1,10 @@
 package com.hover.iot.service.implementation;
 
-import com.hover.iot.enumeration.Role;
 import com.hover.iot.enumeration.TokenType;
 import com.hover.iot.exception.ResourceConflictException;
 import com.hover.iot.model.User;
 import com.hover.iot.repository.UserRepository;
-import com.hover.iot.request.LoginRequest;
-import com.hover.iot.request.LogoutRequest;
-import com.hover.iot.request.RefreshRequest;
-import com.hover.iot.request.RegisterRequest;
+import com.hover.iot.request.*;
 import com.hover.iot.response.AuthenticationResponse;
 import com.hover.iot.service.ITokenService;
 import org.hibernate.exception.ConstraintViolationException;
@@ -20,6 +16,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.annotation.DirtiesContext;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -87,7 +84,7 @@ public class UserServiceTest {
                         "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.qvH8K0WuQPR4gY7VJspvTP8a7V9F9");
 
         User user = new User("John Doe","johndoe",passwordEncoder.encode("password"),
-                new ArrayList<>(),Role.USER);
+                new ArrayList<>());
 
 
         // Mock
@@ -112,20 +109,21 @@ public class UserServiceTest {
     @Test
     public void testRefresh() {
         // Given
-        RefreshRequest request = new RefreshRequest("access_token", "refresh_token");
+        TokenRequest request = new TokenRequest();
+        request.setToken("refresh_token");
 
         User user = new User("John Doe","johndoe",passwordEncoder.encode("password"),
-                List.of("refresh_token"),Role.USER);
+                List.of("refresh_token"));
 
         // Mock
-        when(userRepository.findByTokensContaining(request.getRefreshToken())).thenReturn(Optional.of(user));
+        when(userRepository.findByTokensContaining(request.getToken())).thenReturn(Optional.of(user));
         when(tokenService.createToken(user, TokenType.ACCESS)).thenReturn("new_access_token");
 
         // When
         AuthenticationResponse response = userService.refresh(request);
 
         // Then
-        verify(userRepository, times(1)).findByTokensContaining(request.getRefreshToken());
+        verify(userRepository, times(1)).findByTokensContaining(request.getToken());
         verify(tokenService, times(1)).createToken(user, TokenType.ACCESS);
 
         assertNotNull(response);
@@ -139,9 +137,10 @@ public class UserServiceTest {
         String token = "valid_token";
 
         User user = new User("testuser", "testuser", passwordEncoder.encode("password"),
-                Collections.singletonList(token), Role.USER);
+                Collections.singletonList(token));
 
-        LogoutRequest request = new LogoutRequest(token);
+        TokenRequest request = new TokenRequest();
+        request.setToken(token);
 
         // Mock
         when(userRepository.findByTokensContaining(token)).thenReturn(Optional.of(user));
@@ -158,7 +157,8 @@ public class UserServiceTest {
     public void testLogout_userNotFound() {
         // Given
         String token = "invalid_token";
-        LogoutRequest request = new LogoutRequest(token);
+        TokenRequest request = new TokenRequest();
+        request.setToken(token);
 
         // Mock
         when(userRepository.findByTokensContaining(token)).thenReturn(Optional.empty());

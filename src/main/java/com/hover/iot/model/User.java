@@ -1,12 +1,11 @@
 package com.hover.iot.model;
 
-import com.hover.iot.enumeration.Role;
 import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -53,12 +52,6 @@ public class User implements UserDetails {
     private List<String> tokens;
 
     /**
-     * The user's roles.
-     */
-    @Enumerated(EnumType.STRING)
-    private Role role;
-
-    /**
      * Initializes a new instance of {@link User} class. Default Constructor.
      */
     public User() {
@@ -70,14 +63,12 @@ public class User implements UserDetails {
      * @param username The user's name.
      * @param password The user's password.
      * @param tokens The user's tokens.
-     * @param role The user's role.
      */
-    public User(String name, String username, String password, List<String> tokens, Role role) {
+    public User(String name, String username, String password, List<String> tokens) {
         this.name = name;
         this.username = username;
         this.password = password;
         this.tokens = tokens;
-        this.role = role;
     }
 
     /**
@@ -87,17 +78,14 @@ public class User implements UserDetails {
      * @param username The user's name.
      * @param password The user's password.
      * @param tokens The user's tokens.
-     * @param role The user's role.
      */
-    public User(Integer id, String name, String username, String password, List<String> tokens, Role role) {
+    public User(Integer id, String name, String username, String password, List<String> tokens) {
         this.id = id;
         this.name = name;
         this.username = username;
         this.password = password;
         this.tokens = tokens;
-        this.role = role;
     }
-
 
     /**
      * Gets the user's id.
@@ -124,14 +112,6 @@ public class User implements UserDetails {
     }
 
     /**
-     * Gets the user's role.
-     * @return The user's role.
-     */
-    public Role getRole() {
-        return role;
-    }
-
-    /**
      * Sets the user's tokens.
      * @param tokens The user's tokens to set.
      */
@@ -146,7 +126,7 @@ public class User implements UserDetails {
      */
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(role.name()));
+        return Collections.emptyList();
     }
 
     /**

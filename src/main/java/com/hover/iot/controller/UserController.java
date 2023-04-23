@@ -1,6 +1,8 @@
 package com.hover.iot.controller;
 
-import com.hover.iot.request.*;
+import com.hover.iot.request.LoginRequest;
+import com.hover.iot.request.RegisterRequest;
+import com.hover.iot.request.TokenRequest;
 import com.hover.iot.response.ApiResponse;
 import com.hover.iot.response.AuthenticationResponse;
 import com.hover.iot.service.IUserService;
@@ -12,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Controller class for handling HTTP requests related to user authentication.
+ * A Controller class for handling HTTP requests related to user authentication.
  */
 @RestController
 @RequestMapping("/api/v1/user")
@@ -64,11 +66,11 @@ public class UserController {
     /**
      * Handles a request to refresh a user's access token.
      *
-     * @param request the RefreshRequest object containing the user's refresh token
+     * @param request The token request containing the user's refresh token.
      * @return a ResponseEntity containing an AuthenticationResponse object with the user's new access token
      */
     @PostMapping("/refresh")
-    public ResponseEntity<ApiResponse<AuthenticationResponse>> refresh(@RequestBody RefreshRequest request) {
+    public ResponseEntity<ApiResponse<AuthenticationResponse>> refresh(@RequestBody TokenRequest request) {
         var result = userService.refresh(request);
 
         var response = new ApiResponse<>(HttpStatus.OK, result);
@@ -79,11 +81,11 @@ public class UserController {
     /**
      * Handles a request to logout a user.
      *
-     * @param request the logout request containing the user's access token
+     * @param request The token request containing the user's refresh token.
      * @return a ResponseEntity with HTTP status code 200 indicating successful logout
      */
     @PostMapping("/logout")
-    public ResponseEntity<ApiResponse<Object>> logout(@RequestBody LogoutRequest request) {
+    public ResponseEntity<ApiResponse<Object>> logout(@RequestBody TokenRequest request) {
         userService.logout(request);
 
         var response = new ApiResponse<>(HttpStatus.OK, "Successful logout");
