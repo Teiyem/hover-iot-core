@@ -1,10 +1,13 @@
 spring:
   config:
-    import: application-cst.properties
+    import: bootstrap.yml, application-cst.properties
   datasource:
-    url: jdbc:postgresql://localhost:5432/hover-iot
-    username: atlas
-    password: password
+    url: ${database_uri}
+    username: ${db_username}
+    password: ${db_password}
   jpa:
     hibernate:
       ddl-auto: validate
+  cloud:
+    vault:
+      enabled: true

@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: hover
+  cloud:
+    vault:
+      authentication: token
+      kv:
+        backend: hover-iot
+        default-context: secrets
+      token: dev-token
+      uri: http://localhost:8200
+  config:
+    import: optional:vault://
