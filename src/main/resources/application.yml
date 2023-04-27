@@ -2,21 +2,14 @@ server:
   port: 8080
 
 spring:
-  config:
-    import: application-cst.properties
-  datasource: # You should update these properties
-    url: jdbc:postgresql://localhost:5432/hover-iot
-    username: dev-ser
-    password: password
-    driver-class-name: org.postgresql.Driver
-  main:
-    web-application-type: servlet
   jpa:
     database: postgresql
     database-platform: org.hibernate.dialect.PostgreSQLDialect
-    hibernate:
-      ddl-auto: create-drop
     show-sql: true
     properties:
       hibernate:
         format_sql: true
+  profiles:
+    active: dev
+  main:
+    web-application-type: servlet

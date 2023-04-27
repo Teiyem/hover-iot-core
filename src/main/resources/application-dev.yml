@@ -1,0 +1,10 @@
+spring:
+  config:
+    import: application-cst-dev.properties
+  datasource:
+    url: jdbc:postgresql://localhost:5332/hover-iot
+    username: atlas
+    password: password
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
