@@ -1,6 +1,8 @@
 # Hover
 Hover (**H**ome Aut**o**mation Ser**ver**) is a central hub for managing and monitoring smart home devices by providing Restful APIs that are consumed by the Hover client applications.
 
+[![CI Build Hover Core](https://github.com/Teiyem/hover-iot-core/actions/workflows/hover-iot-core-ci.yml/badge.svg)](https://github.com/Teiyem/hover-iot-core/actions/workflows/hover-iot-core-ci.yml)
+
 ## Features
 * Authentication and authorization of user actions. ✅
 * Managing and monitoring smart home devices. ⚠️
