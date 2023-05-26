@@ -50,11 +50,7 @@ public class TokenService implements ITokenService {
     private String refreshTokenExp;
 
     /**
-     * Creates a token for the given user with the specified token type.
-     *
-     * @param user      the user to create the token for
-     * @param tokenType the type of the token to create
-     * @return the generated token as a String
+     * {@inheritDoc}
      */
     @Override
     public String createToken(@NotNull UserDetails user, TokenType tokenType) {
@@ -62,12 +58,7 @@ public class TokenService implements ITokenService {
     }
 
     /**
-     * Creates a token for the given user with the specified token type and custom claims.
-     *
-     * @param claims    custom claims to be included in the token
-     * @param user      the user to create the token for
-     * @param tokenType the type of the token to create
-     * @return the generated token as a String
+     * {@inheritDoc}
      */
     @Override
     public String createToken(Map<String, Object> claims, @NotNull UserDetails user, TokenType tokenType) {
@@ -82,12 +73,7 @@ public class TokenService implements ITokenService {
     }
 
     /**
-     * Checks if the provided token is valid for the given user and token type.
-     *
-     * @param token     the token to check
-     * @param user      the user to compare with the token
-     * @param tokenType the type of the token to check
-     * @return true if the token is valid for the user, false otherwise
+     * {@inheritDoc}
      */
     @Override
     public boolean isTokenValid(String token, @NotNull UserDetails user, TokenType tokenType) {
@@ -96,11 +82,7 @@ public class TokenService implements ITokenService {
     }
 
     /**
-     * Extracts the username from the provided token.
-     *
-     * @param token     the token to extract the username from
-     * @param tokenType the type of the token to extract the username from
-     * @return the username as a String
+     * {@inheritDoc}
      */
     @Override
     public String extractUsername(String token, TokenType tokenType) {
@@ -108,11 +90,7 @@ public class TokenService implements ITokenService {
     }
 
     /**
-     * Extracts the expiration date from the provided token.
-     *
-     * @param token     the token to extract the expiration date from
-     * @param tokenType the type of the token to extract the expiration date from
-     * @return the expiration date as a Date object
+     * {@inheritDoc}
      */
     @Override
     public Date extractExpiration(String token, TokenType tokenType) {
@@ -120,14 +98,7 @@ public class TokenService implements ITokenService {
     }
 
     /**
-     * Extracts a claim from a JWT token by parsing the token, retrieving the claims,
-     * and applying the given resolver function to the claims.
-     *
-     * @param token     the JWT token to extract the claim from
-     * @param resolver  the function to apply to the claims
-     * @param tokenType the type of token (access or refresh)
-     * @param <T>       the type of the claim to extract
-     * @return the extracted claim
+     * {@inheritDoc}
      */
     @Override
     public <T> T extractClaim(String token, @NotNull Function<Claims, T> resolver, TokenType tokenType) {
@@ -136,13 +107,7 @@ public class TokenService implements ITokenService {
     }
 
     /**
-     * Checks whether a JWT token has a claim with the given name by parsing the token,
-     * retrieving the claims, and checking if the claim is not null.
-     *
-     * @param token     the JWT token to check for the claim
-     * @param name      the name of the claim to check for
-     * @param tokenType the type of token (access or refresh)
-     * @return true if the token has the claim, false otherwise
+     * {@inheritDoc}
      */
     @Override
     public boolean hasClaim(String token, String name, TokenType tokenType) {
@@ -171,7 +136,7 @@ public class TokenService implements ITokenService {
      * @param tokenType the type of token (access or refresh)
      * @return the secret key for the token
      */
-    @NotNull Key getSecret(TokenType tokenType) {
+    private @NotNull Key getSecret(TokenType tokenType) {
         final String key = tokenType == TokenType.ACCESS ? accessTokenKey : refreshTokenKey;
         byte[] keyBytes = Decoders.BASE64.decode(key);
 

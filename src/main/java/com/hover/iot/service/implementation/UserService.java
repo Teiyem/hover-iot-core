@@ -46,7 +46,7 @@ public class UserService implements IUserService {
     private final AuthenticationManager authenticationManager;
 
     /**
-     * Initializes a new instance of {@link UserService} class with the given arguments.
+     * Initializes a new instance of {@link UserService}.
      *
      * @param userRepository        The user repository to use for user data storage and retrieval.
      * @param passwordEncoder       The password encoder to use for user password hashing and validation.
@@ -62,10 +62,7 @@ public class UserService implements IUserService {
     }
 
     /**
-     * Registers a new user and returns an authentication response containing an access token and a refresh token.
-     *
-     * @param request The registration request containing the user's name, username, and password.
-     * @return An {@link AuthenticationResponse} containing an access token and a refresh token.
+     * {@inheritDoc}
      */
     @Override
     public String register(@NotNull RegisterRequest request) {
@@ -82,10 +79,7 @@ public class UserService implements IUserService {
     }
 
     /**
-     * Authenticates a user and returns an authentication response containing an access token and a refresh token.
-     *
-     * @param request The login request containing the user's username and password.
-     * @return An {@link AuthenticationResponse} containing an access token and a refresh token.
+     * {@inheritDoc}
      */
     @Override
     public AuthenticationResponse login(@NotNull LoginRequest request) {
@@ -113,11 +107,7 @@ public class UserService implements IUserService {
     }
 
     /**
-     * Refreshes an access token using a refresh token and returns an authentication response containing
-     * the new access token and refresh token.
-     *
-     * @param request The token request containing the user's refresh token.
-     * @return An {@link AuthenticationResponse} containing a new access token and refresh token.
+     * {@inheritDoc}
      */
     @Override
     public AuthenticationResponse refresh(@NotNull TokenRequest request) {
@@ -131,9 +121,7 @@ public class UserService implements IUserService {
     }
 
     /**
-     * Logs out a user by invalidating their refresh authentication token.
-     *
-     * @param request The token request containing the user's refresh token.
+     * {@inheritDoc}
      */
     @Override
     public void logout(@NotNull TokenRequest request) {
