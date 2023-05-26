@@ -1,6 +1,4 @@
-HELP.md
 target/
-!.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
 
@@ -29,5 +27,7 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
-### VS Code ###
 .vscode/
+/src/main/java/com/hover/iot/model/loadshedding/
+/src/main/java/com/hover/iot/service/IEskomSePushService.java
+/src/main/java/com/hover/iot/service/implementation/EskomSePushService.java
