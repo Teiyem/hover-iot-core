@@ -40,7 +40,7 @@ public class UserControllerTest {
     private PasswordEncoder passwordEncoder;
 
     @BeforeEach
-    public void setupUser() {
+    public void setUp() {
         User user = new User("Test", "testUser", passwordEncoder.encode("password"),
                 new ArrayList<>());
 
@@ -75,7 +75,7 @@ public class UserControllerTest {
     @Test
     void testRegister_newUser() {
         //Given
-        RegisterRequest request = new  RegisterRequest("John Doe", "johnDoe", "password123");
+        RegisterRequest request = new RegisterRequest("John Doe", "johnDoe", "password123");
 
         // When and Then
         webTestClient.post()
@@ -135,7 +135,7 @@ public class UserControllerTest {
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(new ParameterizedTypeReference<ApiResponse<AuthenticationResponse>>() {
-                 })
+                })
                 .value(response -> {
                     assertEquals(HttpStatus.OK.value(), response.getStatusCode());
                     assertEquals(HttpStatus.OK, response.getStatus());
@@ -167,8 +167,7 @@ public class UserControllerTest {
         String accessToken = authResponse.getToken();
         String refreshToken = authResponse.getRefreshToken();
 
-        TokenRequest request = new TokenRequest();
-        request.setToken(refreshToken);
+        TokenRequest request = new TokenRequest(refreshToken);
 
         AuthenticationResponse refreshResponse = Objects.requireNonNull(webTestClient.post()
                 .uri("/api/v1/user/refresh")
@@ -204,8 +203,7 @@ public class UserControllerTest {
 
         // Given
         String accessToken = authResponse.getToken();
-        TokenRequest request = new TokenRequest();
-        request.setToken(authResponse.getRefreshToken());
+        TokenRequest request = new TokenRequest(authResponse.getRefreshToken());
 
         // When And Then
         webTestClient.post()

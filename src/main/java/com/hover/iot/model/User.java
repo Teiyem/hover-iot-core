@@ -9,7 +9,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * User model class.
+ * A user model class.
  */
 @Entity
 @Table(name = "tbl_user")
@@ -59,10 +59,11 @@ public class User implements UserDetails {
 
     /**
      * Initializes a new instance of {@link User} class with the given arguments.
-     * @param name The user's name.
+     *
+     * @param name     The user's name.
      * @param username The user's name.
      * @param password The user's password.
-     * @param tokens The user's tokens.
+     * @param tokens   The user's tokens.
      */
     public User(String name, String username, String password, List<String> tokens) {
         this.name = name;
@@ -73,11 +74,12 @@ public class User implements UserDetails {
 
     /**
      * Initializes a new instance of {@link User} class with the given arguments.
-     * @param id The user's id.
-     * @param name The user's name.
+     *
+     * @param id       The user's id.
+     * @param name     The user's name.
      * @param username The user's name.
      * @param password The user's password.
-     * @param tokens The user's tokens.
+     * @param tokens   The user's tokens.
      */
     public User(Integer id, String name, String username, String password, List<String> tokens) {
         this.id = id;
@@ -89,6 +91,7 @@ public class User implements UserDetails {
 
     /**
      * Gets the user's id.
+     *
      * @return The user's id.
      */
     public Integer getId() {
@@ -97,6 +100,7 @@ public class User implements UserDetails {
 
     /**
      * Gets the user's name.
+     *
      * @return The user's name.
      */
     public String getName() {
@@ -105,6 +109,7 @@ public class User implements UserDetails {
 
     /**
      * Gets the user's tokens.
+     *
      * @return The user's tokens.
      */
     public List<String> getTokens() {
@@ -113,6 +118,7 @@ public class User implements UserDetails {
 
     /**
      * Sets the user's tokens.
+     *
      * @param tokens The user's tokens to set.
      */
     public void setTokens(List<String> tokens) {
@@ -151,6 +157,7 @@ public class User implements UserDetails {
 
     /**
      * Gets of if the account is not expired.
+     *
      * @return true.
      */
     @Override
@@ -160,6 +167,7 @@ public class User implements UserDetails {
 
     /**
      * Gets of if the account is not locked.
+     *
      * @return true.
      */
     @Override
@@ -169,6 +177,7 @@ public class User implements UserDetails {
 
     /**
      * Gets if the user is not expired.
+     *
      * @return true.
      */
     @Override
@@ -178,6 +187,7 @@ public class User implements UserDetails {
 
     /**
      * Gets if the user is enabled
+     *
      * @return true.
      */
     @Override

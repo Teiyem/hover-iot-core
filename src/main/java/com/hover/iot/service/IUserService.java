@@ -1,6 +1,9 @@
 package com.hover.iot.service;
 
-import com.hover.iot.request.*;
+import com.hover.iot.exception.EntityNotFoundException;
+import com.hover.iot.request.LoginRequest;
+import com.hover.iot.request.RegisterRequest;
+import com.hover.iot.request.TokenRequest;
 import com.hover.iot.response.AuthenticationResponse;
 import org.jetbrains.annotations.NotNull;
 
@@ -22,6 +25,7 @@ public interface IUserService {
      *
      * @param request The login request containing the user's username and password.
      * @return An {@link AuthenticationResponse} containing an access token and a refresh token.
+     * @throws EntityNotFoundException Thrown When the username or password is invalid.
      */
     AuthenticationResponse login(@NotNull LoginRequest request);
 
@@ -41,3 +45,4 @@ public interface IUserService {
      */
     void logout(@NotNull TokenRequest request);
 }
+

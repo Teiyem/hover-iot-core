@@ -16,7 +16,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.annotation.DirtiesContext;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -77,18 +76,18 @@ public class UserServiceTest {
     @Test
     public void testLogin() {
         // Given
-        LoginRequest loginRequest = new LoginRequest("johndoe","password");
+        LoginRequest loginRequest = new LoginRequest("johndoe", "password");
 
         AuthenticationResponse authenticationResponse =
                 new AuthenticationResponse("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODk",
                         "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.qvH8K0WuQPR4gY7VJspvTP8a7V9F9");
 
-        User user = new User("John Doe","johndoe",passwordEncoder.encode("password"),
+        User user = new User("John Doe", "johndoe", passwordEncoder.encode("password"),
                 new ArrayList<>());
 
 
         // Mock
-        when(userRepository.findByUsername(loginRequest.getUsername())).thenReturn(Optional.of(user));
+        when(userRepository.findByUsername(loginRequest.username())).thenReturn(Optional.of(user));
         when(userRepository.save(user)).thenReturn(user);
         when(tokenService.createToken(user, TokenType.ACCESS)).thenReturn(authenticationResponse.getToken());
         when(tokenService.createToken(user, TokenType.REFRESH)).thenReturn(authenticationResponse.getRefreshToken());
@@ -100,7 +99,7 @@ public class UserServiceTest {
         assertEquals(result.getToken(), authenticationResponse.getToken());
         assertEquals(result.getRefreshToken(), authenticationResponse.getRefreshToken());
 
-        verify(userRepository).findByUsername(loginRequest.getUsername());
+        verify(userRepository).findByUsername(loginRequest.username());
         verify(tokenService).createToken(user, TokenType.ACCESS);
         verify(tokenService).createToken(user, TokenType.REFRESH);
         verify(userRepository).save(user);
@@ -109,21 +108,20 @@ public class UserServiceTest {
     @Test
     public void testRefresh() {
         // Given
-        TokenRequest request = new TokenRequest();
-        request.setToken("refresh_token");
+        TokenRequest request = new TokenRequest("refresh_token");
 
-        User user = new User("John Doe","johndoe",passwordEncoder.encode("password"),
+        User user = new User("John Doe", "johndoe", passwordEncoder.encode("password"),
                 List.of("refresh_token"));
 
         // Mock
-        when(userRepository.findByTokensContaining(request.getToken())).thenReturn(Optional.of(user));
+        when(userRepository.findByTokensContaining(request.token())).thenReturn(Optional.of(user));
         when(tokenService.createToken(user, TokenType.ACCESS)).thenReturn("new_access_token");
 
         // When
         AuthenticationResponse response = userService.refresh(request);
 
         // Then
-        verify(userRepository, times(1)).findByTokensContaining(request.getToken());
+        verify(userRepository, times(1)).findByTokensContaining(request.token());
         verify(tokenService, times(1)).createToken(user, TokenType.ACCESS);
 
         assertNotNull(response);
@@ -139,8 +137,7 @@ public class UserServiceTest {
         User user = new User("testuser", "testuser", passwordEncoder.encode("password"),
                 Collections.singletonList(token));
 
-        TokenRequest request = new TokenRequest();
-        request.setToken(token);
+        TokenRequest request = new TokenRequest(token);
 
         // Mock
         when(userRepository.findByTokensContaining(token)).thenReturn(Optional.of(user));
@@ -157,8 +154,7 @@ public class UserServiceTest {
     public void testLogout_userNotFound() {
         // Given
         String token = "invalid_token";
-        TokenRequest request = new TokenRequest();
-        request.setToken(token);
+        TokenRequest request = new TokenRequest(token);
 
         // Mock
         when(userRepository.findByTokensContaining(token)).thenReturn(Optional.empty());

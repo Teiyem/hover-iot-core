@@ -3,9 +3,9 @@ Hover (**H**ome Aut**o**mation Ser**ver**) is a central hub for managing and mon
 
 ## Features
 * Authentication and authorization of user actions. ✅
-* Managing and monitoring smart home devices. ⚠️
+* Managing and monitoring smart home devices. ✅
 * Automations and Scenes. ⚠️
-* Persistence of smart home device data. ⚠️
+* Persistence of smart home device data. ✅
 
 ## Technologies Used
 * Java 17.

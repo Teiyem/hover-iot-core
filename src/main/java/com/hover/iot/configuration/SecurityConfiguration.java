@@ -1,7 +1,7 @@
 package com.hover.iot.configuration;
 
 import com.hover.iot.response.ApiResponse;
-import com.hover.iot.util.AuthenticationFilter;
+import com.hover.iot.security.AuthenticationFilter;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

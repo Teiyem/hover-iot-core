@@ -32,13 +32,13 @@ public class DefaultExceptionHandler {
     }
 
     /**
-     * Handle {@link UsernameNotFoundException} exception and return a custom response with a not found status.
+     * Handle {@link EntityNotFoundException} exception and return a custom response with a not found status.
      *
      * @param e        The exception that occurred.
      * @param request  The current HTTP request.
      * @return         A response entity with the custom response object and status.
      */
-    @ExceptionHandler(UsernameNotFoundException.class)
+    @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<ApiResponse<Object>> handleException(@NotNull UsernameNotFoundException e, HttpServletRequest request) {
         ApiResponse<Object> response = new ApiResponse<>(HttpStatus.NOT_FOUND.value(),
                 HttpStatus.NOT_FOUND, e.getMessage());

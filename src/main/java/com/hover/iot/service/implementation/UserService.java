@@ -1,6 +1,7 @@
 package com.hover.iot.service.implementation;
 
 import com.hover.iot.enumeration.TokenType;
+import com.hover.iot.exception.EntityNotFoundException;
 import com.hover.iot.exception.ResourceConflictException;
 import com.hover.iot.model.User;
 import com.hover.iot.repository.UserRepository;
@@ -19,8 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A service class that handles operations related to users such as registration, login, token creation,
- * and logout. Implements the {@link IUserService} interface.
+ * A service class that handles operations related to user management. Implements the {@link IUserService} interface.
  */
 @Service
 public class UserService implements IUserService {
@@ -66,8 +66,8 @@ public class UserService implements IUserService {
      */
     @Override
     public String register(@NotNull RegisterRequest request) {
-        var user = new User(request.getName(), request.getUsername(),
-                passwordEncoder.encode(request.getPassword()), new ArrayList<>());
+        var user = new User(request.name(), request.username(),
+                passwordEncoder.encode(request.password()), new ArrayList<>());
 
         try {
             userRepository.save(user);
@@ -85,13 +85,13 @@ public class UserService implements IUserService {
     public AuthenticationResponse login(@NotNull LoginRequest request) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
-                        request.getUsername(),
-                        request.getPassword()
+                        request.username(),
+                        request.password()
                 )
         );
 
-        var user = userRepository.findByUsername(request.getUsername())
-                .orElseThrow(() -> new UsernameNotFoundException("Invalid Username or Password!"));
+        var user = userRepository.findByUsername(request.username())
+                .orElseThrow(() -> new EntityNotFoundException("Invalid Username or Password!"));
 
         var token = tokenService.createToken(user, TokenType.ACCESS);
         var refreshToken = tokenService.createToken(user, TokenType.REFRESH);
@@ -112,12 +112,12 @@ public class UserService implements IUserService {
     @Override
     public AuthenticationResponse refresh(@NotNull TokenRequest request) {
 
-        var user = userRepository.findByTokensContaining(request.getToken())
+        var user = userRepository.findByTokensContaining(request.token())
                 .orElseThrow();
 
         var token = tokenService.createToken(user, TokenType.ACCESS);
 
-        return new AuthenticationResponse(token, request.getToken());
+        return new AuthenticationResponse(token, request.token());
     }
 
     /**
@@ -125,11 +125,11 @@ public class UserService implements IUserService {
      */
     @Override
     public void logout(@NotNull TokenRequest request) {
-        var user = userRepository.findByTokensContaining(request.getToken())
+        var user = userRepository.findByTokensContaining(request.token())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
         List<String> tokens = new ArrayList<>(user.getTokens());
-        tokens.remove(request.getToken());
+        tokens.remove(request.token());
         user.setTokens(tokens);
 
         userRepository.save(user);

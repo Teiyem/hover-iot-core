@@ -16,6 +16,7 @@ public class TimeConverterTest {
         // Then
         Assertions.assertEquals(expected, result);
     }
+
     @Test
     void testConvertToMilliseconds_validInputInvalidUnit() {
         // Given
@@ -25,6 +26,7 @@ public class TimeConverterTest {
             TimeConverter.convertToMilliseconds(input);
         });
     }
+
     @Test
     void testConvertToMilliseconds_invalidInput() {
         // Given
@@ -35,6 +37,7 @@ public class TimeConverterTest {
             TimeConverter.convertToMilliseconds(input);
         });
     }
+
     @Test
     void testConvertToMilliseconds_emptyInput() {
         // Given
