@@ -18,10 +18,10 @@ Hover (**H**ome Aut**o**mation Ser**ver**) is a central hub for managing and mon
 * PostgreSQL.
 
 ## Getting Started
-To run Hover on your local machine, you will need to have Java 17 and Maven installed. Follow these steps to get started:
+To run Hover on your local machine, you will need to have Java 17, Maven and Docker installed. Follow these steps to get started:
 * Clone the project to your local machine.
-* Open the project in your preferred Java IDE.
 * Build the project using Maven.
+* Run Docker-compose up -d
 * Run the application.
 
 ## Usage
