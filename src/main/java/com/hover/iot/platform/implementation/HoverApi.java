@@ -9,55 +9,27 @@ import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-import java.util.Objects;
 
-/**
- * Implementation of the {@link PlatformApi} interface for the Hover platform.
- * Provides platform-specific methods for interacting with Hover devices.
- */
 @Component
-public class HoverApi implements PlatformApi {
+public class NativeApi implements PlatformApi {
 
-    /**
-     * The http client that is used to make requests.
-     */
     private final OkHttpClient httpClient;
 
-    /**
-     * The object mapper for JSON serialization and deserialization.
-     */
     private final ObjectMapper objectMapper;
 
-    /**
-     * The DTO mapper for attributes.
-     */
     private final AttributeDTOMapper attributeDTOMapper;
 
-    /**
-     * Initializes a new instance of {@link HoverApi} class.
-     *
-     * @param httpClient         The http client that is used to make requests.
-     * @param objectMapper       The object mapper for JSON serialization and deserialization.
-     * @param attributeDTOMapper The DTO mapper for attributes.
-     */
-    public HoverApi(OkHttpClient httpClient, ObjectMapper objectMapper, AttributeDTOMapper attributeDTOMapper) {
+    public NativeApi(OkHttpClient httpClient, ObjectMapper objectMapper, AttributeDTOMapper attributeDTOMapper) {
         this.httpClient = httpClient;
         this.objectMapper = objectMapper;
         this.attributeDTOMapper = attributeDTOMapper;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public String getName() {
         return "Hover";
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void setAttribute(@NotNull Device device, @NotNull Attribute attribute) throws Exception {
         var body = objectMapper.writeValueAsString(attributeDTOMapper.apply(attribute));
@@ -89,9 +61,6 @@ public class HoverApi implements PlatformApi {
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public Attribute getAttribute(@NotNull Device device) {
         Request request = new Request.Builder()
@@ -122,9 +91,7 @@ public class HoverApi implements PlatformApi {
         return null;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+
     @Override
     public boolean isDeviceReachable(@NotNull Device device) {
         var url = "Http://" + device.getHost();
@@ -146,12 +113,6 @@ public class HoverApi implements PlatformApi {
         }
     }
 
-    /**
-     * Constructs the URL based on the provided Device.
-     *
-     * @param device The Device object containing information for constructing the URL.
-     * @return The constructed URL as a String.
-     */
     public String constructUrl(@NotNull Device device) {
         return "http://" +
                 device.getHost() +
