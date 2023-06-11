@@ -1,33 +1,29 @@
 package com.hover.iot.controller;
 
-import com.hover.iot.enumeration.AttributeType;
-import com.hover.iot.model.*;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hover.iot.dto.DeviceDTO;
+import com.hover.iot.entity.User;
+import com.hover.iot.mapper.DeviceDTOMapper;
 import com.hover.iot.repository.DeviceRepository;
 import com.hover.iot.repository.RoomRepository;
 import com.hover.iot.repository.UserRepository;
 import com.hover.iot.request.AddDeviceRequest;
-import com.hover.iot.request.DeviceAttributeRequest;
 import com.hover.iot.request.LoginRequest;
-import com.hover.iot.request.UpdateDeviceRequest;
 import com.hover.iot.response.ApiResponse;
 import com.hover.iot.response.AuthenticationResponse;
 import com.hover.iot.test.utils.DeviceTestUtils;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.reactive.server.WebTestClient;
-import org.springframework.test.web.servlet.MockMvc;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
@@ -57,22 +53,33 @@ public class DeviceControllerTest {
     @Autowired
     private RoomRepository roomRepository;
 
+    @Autowired
+    private DeviceDTOMapper deviceDTOMapper;
+
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+
     @BeforeEach
     void setUp() {
-        User user = new User("Test", "testUser", passwordEncoder.encode("password"),
+        var user = new User("Test", "testUser", passwordEncoder.encode("password"),
                 new ArrayList<>());
 
         userRepository.save(user);
 
-        Room room = DeviceTestUtils.createTestRoom();
+        var device = DeviceTestUtils.createTestDevice(1L);
+
+        deviceRepository.save(device);
+
+        var room = DeviceTestUtils.createTestRoom();
 
         roomRepository.save(room);
+
+
     }
 
     @Test
     void testAddDevice() {
         // Given When Then
-        AuthenticationResponse authResponse = Objects.requireNonNull(webTestClient.post()
+        var authResponse = Objects.requireNonNull(webTestClient.post()
                 .uri("/api/v1/user/login")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -85,10 +92,11 @@ public class DeviceControllerTest {
                 .getResponseBody()).getData();
 
         // Given
-        String accessToken = authResponse.getToken();
+        var accessToken = authResponse.accessToken();
 
-        AddDeviceRequest request = DeviceTestUtils.createTestAddDeviceRequest();
+        var request = DeviceTestUtils.createTestAddDeviceRequest();
 
+        // When And Then
         webTestClient.post()
                 .uri("/api/v1/device")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
@@ -110,28 +118,120 @@ public class DeviceControllerTest {
     }
 
     @Test
-    void testGetDevice() {
-
-    }
-
-    @Test
-    void getAll() {
-
-    }
-
-    @Test
-    void setAttribute() {
+    void testGetDeviceById() throws JsonProcessingException {
         // Given When Then
+        var authResponse = Objects.requireNonNull(webTestClient.post()
+                .uri("/api/v1/user/login")
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(new LoginRequest("testUser", "password"))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(new ParameterizedTypeReference<ApiResponse<AuthenticationResponse>>() {
+                })
+                .returnResult()
+                .getResponseBody()).getData();
 
+        // Given
+        var accessToken = authResponse.accessToken();
+
+        var deviceDTO = deviceDTOMapper.apply(DeviceTestUtils.createTestDevice(1L));
+
+        // When And Then
+        webTestClient.get()
+                .uri("/api/v1/device/{id}", 1L)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(new ParameterizedTypeReference<ApiResponse<DeviceDTO>>() {
+                })
+                .value(response -> {
+                    assertEquals(HttpStatus.OK.value(), response.getStatusCode());
+                    assertEquals(HttpStatus.OK, response.getStatus());
+                    assertNull(response.getReason());
+                    assertNotNull(response.getTimeStamp());
+                    assertNull(response.getMessage());
+                    assertNotNull(response.getData());
+                });
     }
 
     @Test
-    void update() {
+    void testGetAllDevices() {
+        // Given When Then
+        var authResponse = Objects.requireNonNull(webTestClient.post()
+                .uri("/api/v1/user/login")
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(new LoginRequest("testUser", "password"))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(new ParameterizedTypeReference<ApiResponse<AuthenticationResponse>>() {
+                })
+                .returnResult()
+                .getResponseBody()).getData();
 
+        // Given
+        var accessToken = authResponse.accessToken();
+
+        var deviceDTOList = Collections.singletonList(deviceDTOMapper.apply(DeviceTestUtils.createTestDevice(0L)));
+
+        webTestClient.get()
+                .uri("/api/v1/device")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(new ParameterizedTypeReference<ApiResponse<List<DeviceDTO>>>() {
+                })
+                .value(response -> {
+                    assertEquals(HttpStatus.OK.value(), response.getStatusCode());
+                    assertEquals(HttpStatus.OK, response.getStatus());
+                    assertNull(response.getReason());
+                    assertNotNull(response.getTimeStamp());
+                    assertNull(response.getMessage());
+                    assertNotNull(response.getData());
+                });
     }
 
     @Test
-    void delete() {
+    void testGetAllDevicesByRoom() {
+        // Given When Then
+        var authResponse = Objects.requireNonNull(webTestClient.post()
+                .uri("/api/v1/user/login")
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(new LoginRequest("testUser", "password"))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(new ParameterizedTypeReference<ApiResponse<AuthenticationResponse>>() {
+                })
+                .returnResult()
+                .getResponseBody()).getData();
 
+        // Given
+        var accessToken = authResponse.accessToken();
+
+        var room = DeviceTestUtils.createTestRoom();
+
+        var deviceDTOList = Collections.singletonList(deviceDTOMapper.apply(DeviceTestUtils.createTestDevice(0L)));
+
+        // When and then
+        webTestClient.get()
+                .uri("/api/v1/device/room/{name}", room.getName())
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(new ParameterizedTypeReference<ApiResponse<List<DeviceDTO>>>() {
+                })
+                .value(response -> {
+                    assertEquals(HttpStatus.OK.value(), response.getStatusCode());
+                    assertEquals(HttpStatus.OK, response.getStatus());
+                    assertNull(response.getReason());
+                    assertNotNull(response.getTimeStamp());
+                    assertNull(response.getMessage());
+                    assertNotNull(response.getData());
+                });
     }
 }

@@ -1,6 +1,6 @@
 package com.hover.iot.request;
 
-import com.hover.iot.model.User;
+import com.hover.iot.entity.User;
 
 /**
  * A representation of a request object to register a new {@link User}.

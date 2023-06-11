@@ -1,9 +1,7 @@
 package com.hover.iot.request;
 
-import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.hover.iot.model.Attribute;
-import com.hover.iot.model.Device;
-import org.jetbrains.annotations.NotNull;
+import com.hover.iot.entity.Attribute;
+import com.hover.iot.entity.Device;
 
 import java.util.List;
 

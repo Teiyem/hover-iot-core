@@ -1,10 +1,11 @@
 package com.hover.iot.test.utils;
 
+import com.hover.iot.entity.Attribute;
+import com.hover.iot.entity.Device;
+import com.hover.iot.entity.Room;
 import com.hover.iot.enumeration.AttributeType;
-import com.hover.iot.model.Attribute;
+import com.hover.iot.enumeration.DeviceType;
 import com.hover.iot.model.Credentials;
-import com.hover.iot.model.Device;
-import com.hover.iot.model.Room;
 import com.hover.iot.request.AddDeviceRequest;
 import com.hover.iot.request.DeviceAttributeRequest;
 import com.hover.iot.request.UpdateDeviceRequest;
@@ -25,7 +26,7 @@ public class DeviceTestUtils {
      * @return The created test room.
      */
     public static @NotNull Room createTestRoom() {
-        Room room = new Room();
+        var room = new Room();
         room.setId(1L);
         room.setName("Living Room");
         return room;
@@ -37,15 +38,18 @@ public class DeviceTestUtils {
      * @return The created test AddDeviceRequest.
      */
     public static @NotNull AddDeviceRequest createTestAddDeviceRequest() {
-        String name = "Light";
-        String host = "192.0.151.1";
-        List<Attribute> attributes = Collections.singletonList(new Attribute("brightness", 50, AttributeType.INTEGER));
-        String firmware = "1.0";
-        String type = "Light";
-        Credentials credentials = new Credentials("{username, password}", "{test_username, test_pass}");
-        String platform = "Hover";
+        var name = "Light";
+        var host = "192.0.151.1";
+        var attribute = new Attribute("brightness", 100,
+                AttributeType.INTEGER);
+        var attributes = Collections.singletonList(attribute);
+        var firmware = "1.0";
+        var type = DeviceType.LIGHT;
+        var credentials = new Credentials("{username, password}", "{test_username, test_pass}");
+        var platform = "Hover";
 
-        return new AddDeviceRequest(name, host, attributes, firmware, createTestRoom().getName(), type, credentials, platform);
+        return new AddDeviceRequest(name, host, attributes, firmware, createTestRoom().getName(), type, credentials,
+                platform);
     }
 
     /**
@@ -64,7 +68,7 @@ public class DeviceTestUtils {
      * @return The created test DeviceAttributeRequest.
      */
     public static @NotNull DeviceAttributeRequest createTestDeviceAttributeRequest() {
-        List<Attribute> attributes = Collections.singletonList(new Attribute("brightness",
+        var attributes = Collections.singletonList(new Attribute("brightness",
                 100, AttributeType.INTEGER));
 
         return new DeviceAttributeRequest(attributes);
@@ -76,7 +80,7 @@ public class DeviceTestUtils {
      * @return The created test device.
      */
     public static @NotNull Device createTestDevice(Long id) {
-        Device device = new Device();
+        var device = new Device();
 
         device.setId(id);
         device.setName("Bulb " + id);
@@ -85,7 +89,7 @@ public class DeviceTestUtils {
                 false, AttributeType.BOOLEAN)));
         device.setFirmware("1.0");
         device.setStatus(true);
-        device.setType("Light");
+        device.setType(DeviceType.LIGHT);
         device.setRoom(createTestRoom());
         device.setPlatform("Hover");
 
@@ -98,8 +102,8 @@ public class DeviceTestUtils {
      * @return The created test device list.
      */
     public static @NotNull List<Device> createTestDeviceList() {
-        Device testDevice = createTestDevice(1L);
-        Device anotherTestDevice = createTestDevice(2L);
+        var testDevice = createTestDevice(1L);
+        var anotherTestDevice = createTestDevice(2L);
         return Arrays.asList(testDevice, anotherTestDevice);
     }
 

@@ -1,12 +1,12 @@
-package com.hover.iot.model;
+package com.hover.iot.entity;
 
 import jakarta.persistence.*;
 
 /**
- * A data vault model class.
+ * An entity class that represents a data vault.
  */
 @Entity
-@Table(name = "tbl_vault")
+@Table(name = "TBL_VAULT")
 public class Vault {
     /**
      * The vault's id.

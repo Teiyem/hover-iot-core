@@ -1,6 +1,6 @@
 package com.hover.iot.controller;
 
-import com.hover.iot.dto.RoomDto;
+import com.hover.iot.dto.RoomDTO;
 import com.hover.iot.response.ApiResponse;
 import com.hover.iot.service.IRoomService;
 import org.springframework.http.HttpStatus;
@@ -22,7 +22,7 @@ public class RoomController {
     private final IRoomService roomService;
 
     /**
-     * Initializes a new instance of {@link DeviceController} class.
+     * Initializes a new instance of {@link RoomController} class.
      *
      * @param roomService The service that is used to handle room management.
      */
@@ -49,7 +49,7 @@ public class RoomController {
      * @return A {@link ApiResponse} object containing a list of rooms.
      */
     @GetMapping
-    public ResponseEntity<ApiResponse<List<RoomDto>>> getAll() {
+    public ResponseEntity<ApiResponse<List<RoomDTO>>> getAll() {
         var response = new ApiResponse<>(HttpStatus.OK, roomService.getAll());
         return new ResponseEntity<>(response, response.getStatus());
     }

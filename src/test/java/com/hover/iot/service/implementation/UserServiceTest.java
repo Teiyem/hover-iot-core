@@ -2,11 +2,13 @@ package com.hover.iot.service.implementation;
 
 import com.hover.iot.enumeration.TokenType;
 import com.hover.iot.exception.ResourceConflictException;
-import com.hover.iot.model.User;
+import com.hover.iot.entity.User;
 import com.hover.iot.repository.UserRepository;
 import com.hover.iot.request.*;
 import com.hover.iot.response.AuthenticationResponse;
+import com.hover.iot.result.TokenResult;
 import com.hover.iot.service.ITokenService;
+import com.hover.iot.util.TimeConverter;
 import org.hibernate.exception.ConstraintViolationException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,10 +19,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -46,11 +45,11 @@ public class UserServiceTest {
     @Test
     public void testRegister_newUser() {
         // Given
-        RegisterRequest request = new RegisterRequest("John Doe",
+        var request = new RegisterRequest("John Doe",
                 "johndoe", "password");
 
         // When
-        String result = userService.register(request);
+        var result = userService.register(request);
 
         // Then
         assertEquals("Successfully registered user", result);
@@ -59,7 +58,7 @@ public class UserServiceTest {
     @Test
     public void testRegister_existingUser() {
         // Given
-        RegisterRequest request = new RegisterRequest("John Doe",
+        var request = new RegisterRequest("John Doe",
                 "johndoe", "password");
 
         // Mock
@@ -76,28 +75,32 @@ public class UserServiceTest {
     @Test
     public void testLogin() {
         // Given
-        LoginRequest loginRequest = new LoginRequest("johndoe", "password");
+        var loginRequest = new LoginRequest("johndoe", "password");
 
-        AuthenticationResponse authenticationResponse =
+        var authenticationResponse =
                 new AuthenticationResponse("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODk",
-                        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.qvH8K0WuQPR4gY7VJspvTP8a7V9F9");
+                        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.qvH8K0WuQPR4gY7VJspvTP8a7V9F9",
+                        getExpirationTime("7m"),
+                                getExpirationTime("7d"));
 
-        User user = new User("John Doe", "johndoe", passwordEncoder.encode("password"),
+        var user = new User("John Doe", "johndoe", passwordEncoder.encode("password"),
                 new ArrayList<>());
 
 
         // Mock
         when(userRepository.findByUsername(loginRequest.username())).thenReturn(Optional.of(user));
         when(userRepository.save(user)).thenReturn(user);
-        when(tokenService.createToken(user, TokenType.ACCESS)).thenReturn(authenticationResponse.getToken());
-        when(tokenService.createToken(user, TokenType.REFRESH)).thenReturn(authenticationResponse.getRefreshToken());
+        when(tokenService.createToken(user, TokenType.ACCESS)).thenReturn(new TokenResult(
+                authenticationResponse.accessToken(), getExpirationTime("7m")));
+        when(tokenService.createToken(user, TokenType.REFRESH)).thenReturn(new TokenResult(
+                authenticationResponse.refreshToken(), getExpirationTime("7d")));
 
         // When
-        AuthenticationResponse result = userService.login(loginRequest);
+        var result = userService.login(loginRequest);
 
         // Then
-        assertEquals(result.getToken(), authenticationResponse.getToken());
-        assertEquals(result.getRefreshToken(), authenticationResponse.getRefreshToken());
+        assertEquals(result.accessToken(), authenticationResponse.accessToken());
+        assertEquals(result.refreshToken(), authenticationResponse.refreshToken());
 
         verify(userRepository).findByUsername(loginRequest.username());
         verify(tokenService).createToken(user, TokenType.ACCESS);
@@ -108,36 +111,40 @@ public class UserServiceTest {
     @Test
     public void testRefresh() {
         // Given
-        TokenRequest request = new TokenRequest("refresh_token");
+        var request = new TokenRequest("refresh_token");
 
-        User user = new User("John Doe", "johndoe", passwordEncoder.encode("password"),
+        var user = new User("John Doe", "johndoe", passwordEncoder.encode("password"),
                 List.of("refresh_token"));
 
         // Mock
         when(userRepository.findByTokensContaining(request.token())).thenReturn(Optional.of(user));
-        when(tokenService.createToken(user, TokenType.ACCESS)).thenReturn("new_access_token");
+        when(tokenService.isTokenValid(request.token(), user, TokenType.REFRESH)).thenReturn(true);
+        when(tokenService.createToken(user, TokenType.ACCESS)).
+                thenReturn(new TokenResult("new_access_token", getExpirationTime("7m")));
+        when(tokenService.createToken(user, TokenType.REFRESH)).
+                thenReturn(new TokenResult("new_refresh_token", getExpirationTime("15d")));
 
         // When
-        AuthenticationResponse response = userService.refresh(request);
+        var response = userService.refresh(request);
 
         // Then
         verify(userRepository, times(1)).findByTokensContaining(request.token());
         verify(tokenService, times(1)).createToken(user, TokenType.ACCESS);
 
         assertNotNull(response);
-        assertEquals(response.getToken(), "new_access_token");
-        assertEquals(response.getRefreshToken(), "refresh_token");
+        assertEquals(response.accessToken(), "new_access_token");
+        assertEquals(response.refreshToken(), "new_refresh_token");
     }
 
     @Test
     public void testLogout_successful() {
         // Given
-        String token = "valid_token";
+        var token = "valid_token";
 
-        User user = new User("testuser", "testuser", passwordEncoder.encode("password"),
+        var user = new User("testuser", "testuser", passwordEncoder.encode("password"),
                 Collections.singletonList(token));
 
-        TokenRequest request = new TokenRequest(token);
+        var request = new TokenRequest(token);
 
         // Mock
         when(userRepository.findByTokensContaining(token)).thenReturn(Optional.of(user));
@@ -153,8 +160,8 @@ public class UserServiceTest {
     @Test
     public void testLogout_userNotFound() {
         // Given
-        String token = "invalid_token";
-        TokenRequest request = new TokenRequest(token);
+        var token = "invalid_token";
+        var request = new TokenRequest(token);
 
         // Mock
         when(userRepository.findByTokensContaining(token)).thenReturn(Optional.empty());
@@ -167,5 +174,9 @@ public class UserServiceTest {
 
         // Verify that the userRepository.save() method was not called
         verify(userRepository, never()).save(any(User.class));
+    }
+
+    private static long getExpirationTime(String input) {
+        return new Date(System.currentTimeMillis() + TimeConverter.convertToMilliseconds(input)).getTime();
     }
 }

@@ -6,8 +6,6 @@ import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Base64;
 
@@ -15,6 +13,7 @@ import java.util.Base64;
  * A utility class for encrypting and decrypting plaintext using the AES encryption algorithm with CBC mode and PKCS5Padding padding.
  */
 public class EncryptionProvider {
+
     /**
      * The cipher algorithm used for encryption and decryption.
      */
@@ -26,11 +25,11 @@ public class EncryptionProvider {
     private static final String KEY_ALGORITHM = "AES";
 
     /**
-     * Encrypts the given plaintext using the given key and returns the encrypted text.
+     * Encrypts plaintext.
      *
-     * @param plaintext the plaintext to be encrypted.
-     * @param key       the key used for encryption.
-     * @return the encrypted text.
+     * @param plaintext The plaintext to encrypt.
+     * @param key       The key used for encryption.
+     * @return The Base64-encoded encrypted data.
      * @throws Exception if an error occurs during encryption.
      */
     public static @NotNull String encrypt(@NotNull String plaintext, @NotNull String key) throws Exception {
@@ -53,11 +52,11 @@ public class EncryptionProvider {
     }
 
     /**
-     * Decrypts the given encrypted text using the given key and returns the plaintext.
+     * Decrypts encrypted data.
      *
-     * @param encryptedText the encrypted text to be decrypted.
-     * @param key           the key used for decryption.
-     * @return the decrypted plaintext.
+     * @param encryptedText The encrypted data to decrypt.
+     * @param key           The key to use to decrypt the data.
+     * @return The decrypted plaintext.
      * @throws Exception if an error occurs during decryption.
      */
     public static @NotNull String decrypt(@NotNull String encryptedText, @NotNull String key) throws Exception {

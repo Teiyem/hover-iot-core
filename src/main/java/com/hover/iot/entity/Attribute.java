@@ -1,16 +1,23 @@
-package com.hover.iot.model;
+package com.hover.iot.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.hover.iot.converter.ObjectValueConverter;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
+import com.hover.iot.converter.ObjectConverter;
 import com.hover.iot.enumeration.AttributeType;
 import com.hover.iot.exception.InvalidAttributeValueException;
 import jakarta.persistence.*;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import java.time.LocalDateTime;
 
 /**
- * A device attribute model class.
+ * An entity class that represents a device's attribute.
  */
 @Entity
-@Table(name = "tbl_attribute")
+@Table(name = "TBL_ATTRIBUTE")
 public class Attribute {
 
     /**
@@ -18,33 +25,41 @@ public class Attribute {
      */
     @Id
     @SequenceGenerator(
-            name = "tbl_attribute_id_seq",
-            sequenceName = "tbl_attribute_id_seq",
+            name = "TBL_ATTRIBUTE_ID_SEQ",
+            sequenceName = "TBL_ATTRIBUTE_ID_SEQ",
             allocationSize = 1
     )
     @GeneratedValue(
             strategy = GenerationType.SEQUENCE,
-            generator = "tbl_attribute_id_seq"
+            generator = "TBL_ATTRIBUTE_ID_SEQ"
     )
     @JsonIgnore
     private Long id;
 
     /**
-     * The key of the attribute.
+     * The attribute's name.
      */
     private String name;
 
     /**
-     * The value of the attribute.
+     * The attribute's value.
      */
-    @Convert(converter = ObjectValueConverter.class)
+    @Convert(converter = ObjectConverter.class)
     private Object value;
 
     /**
-     * The attribute type.
+     * The attribute's type.
      */
     @Enumerated(EnumType.STRING)
     private AttributeType type;
+
+    /**
+     * The attribute's updated time.
+     */
+    @UpdateTimestamp
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    private LocalDateTime updatedAt;
 
     /**
      * Initializes a new instance of {@link Attribute} class. Default Constructor.
@@ -79,7 +94,7 @@ public class Attribute {
     public Attribute(String name, Object value, AttributeType type) {
         this.name = name;
         this.type = type;
-        this.value = value;
+        setValue(value);
     }
 
     /**
@@ -110,12 +125,17 @@ public class Attribute {
     }
 
     /**
-     * Sets the value of this attribute.
+     * Sets the value of the attribute.
      *
-     * @param value The new value to set.
+     * @param value the value to set
+     * @throws InvalidAttributeValueException if the value is not a supported type
      */
     public void setValue(Object value) {
-        this.value = value;
+        if (value instanceof String || value instanceof Boolean || value instanceof Integer || value instanceof Float
+                || value instanceof Long)
+            this.value = value;
+        else
+            throw new InvalidAttributeValueException(type);
     }
 
     /**
@@ -128,17 +148,20 @@ public class Attribute {
     }
 
     /**
-     * Returns a string representation of the Attribute object.
+     * Gets the attribute's updated at date.
      *
-     * @return a string representation of the Attribute object.
+     * @return The attribute's updated at date.
      */
-    @Override
-    public String toString() {
-        return "Attribute{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", value=" + value +
-                ", type=" + type +
-                '}';
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    /**
+     * Sets the attribute's updated at date.
+     *
+     * @param updatedAt The attribute's updated at date to set.
+     */
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
     }
 }

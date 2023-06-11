@@ -1,29 +1,27 @@
 package com.hover.iot.mapper;
 
-import com.hover.iot.dto.DeviceDto;
-import com.hover.iot.dto.RoomDto;
-import com.hover.iot.model.Device;
-import com.hover.iot.model.Room;
+import com.hover.iot.dto.RoomDTO;
+import com.hover.iot.entity.Room;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 
 import java.util.function.Function;
 
 /**
- * A mapper that maps a {@link Room} object to a {@link RoomDto} object.
+ * A mapper that maps a {@link Room} object to a {@link RoomDTO} object.
  */
 @Component
-public class RoomDTOMapper implements Function<Room, RoomDto> {
+public class RoomDTOMapper implements Function<Room, RoomDTO> {
 
     /**
-     * Maps a {@link Room} object to a {@link RoomDto} object.
+     * Maps a {@link Room} object to a {@link RoomDTO} object.
      *
-     * @param room The Room to be mapped.
-     * @return A {@link RoomDto} object.
+     * @param room The Room to map.
+     * @return A {@link RoomDTO} object.
      */
     @Override
-    public RoomDto apply(@NotNull Room room) {
-        return new RoomDto(
+    public RoomDTO apply(@NotNull Room room) {
+        return new RoomDTO(
                 room.getId(),
                 room.getName()
         );

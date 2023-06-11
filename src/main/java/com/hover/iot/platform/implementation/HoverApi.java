@@ -1,23 +1,22 @@
 package com.hover.iot.platform.implementation;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hover.iot.entity.Attribute;
+import com.hover.iot.entity.Device;
 import com.hover.iot.mapper.AttributeDTOMapper;
-import com.hover.iot.model.Attribute;
-import com.hover.iot.model.Device;
-import com.hover.iot.platform.PlatformApi;
+import com.hover.iot.platform.IPlatformApi;
 import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-import java.util.Objects;
-
 /**
- * Implementation of the {@link PlatformApi} interface for the Hover platform.
+ * Implementation of the {@link IPlatformApi} interface for the Hover platform.
  * Provides platform-specific methods for interacting with Hover devices.
  */
 @Component
-public class HoverApi implements PlatformApi {
+public class HoverApi implements IPlatformApi {
 
     /**
      * The http client that is used to make requests.
@@ -59,7 +58,7 @@ public class HoverApi implements PlatformApi {
      * {@inheritDoc}
      */
     @Override
-    public void setAttribute(@NotNull Device device, @NotNull Attribute attribute) throws Exception {
+    public void writeAttribute(@NotNull Device device, @NotNull Attribute attribute) throws Exception {
         var body = objectMapper.writeValueAsString(attributeDTOMapper.apply(attribute));
 
         RequestBody requestBody = RequestBody.create(body, MediaType.parse("application/json"));
@@ -93,7 +92,7 @@ public class HoverApi implements PlatformApi {
      * {@inheritDoc}
      */
     @Override
-    public Attribute getAttribute(@NotNull Device device) {
+    public Attribute readAttribute(@NotNull Device device) {
         Request request = new Request.Builder()
                 .url(constructUrl(device))
                 .build();
@@ -156,6 +155,6 @@ public class HoverApi implements PlatformApi {
         return "http://" +
                 device.getHost() +
                 ":80/" +
-                device.getType().toLowerCase();
+                device.getType().toString().toLowerCase();
     }
 }

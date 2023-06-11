@@ -1,7 +1,7 @@
 package com.hover.iot.dto;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.hover.iot.model.Room;
+import com.hover.iot.entity.Room;
 
 /**
  * A Data transfer object representing a simplified version of a {@link Room} entity.
@@ -10,7 +10,7 @@ import com.hover.iot.model.Room;
  * @param name The name of the room.
  */
 @JsonTypeName("room")
-public record RoomDto(Long id, String name) {
+public record RoomDTO(Long id, String name) {
 }
 
 

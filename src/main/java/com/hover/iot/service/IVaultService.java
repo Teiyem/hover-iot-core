@@ -1,7 +1,7 @@
 package com.hover.iot.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.hover.iot.model.Vault;
+import com.hover.iot.entity.Vault;
 
 /**
  * A service interface that defines the methods managing vault data.

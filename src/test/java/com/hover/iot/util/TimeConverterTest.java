@@ -1,28 +1,30 @@
 package com.hover.iot.util;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class TimeConverterTest {
     @Test
     void testConvertToMilliseconds_validInput() {
         // Given
-        String input = "5m";
+        var input = "5m";
         long expected = 5 * 60_000L;
 
         // When
         long result = TimeConverter.convertToMilliseconds(input);
 
         // Then
-        Assertions.assertEquals(expected, result);
+        assertEquals(expected, result);
     }
 
     @Test
     void testConvertToMilliseconds_validInputInvalidUnit() {
         // Given
-        String input = "5k";
+        var input = "5k";
 
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             TimeConverter.convertToMilliseconds(input);
         });
     }
@@ -30,10 +32,10 @@ public class TimeConverterTest {
     @Test
     void testConvertToMilliseconds_invalidInput() {
         // Given
-        String input = "invalid";
+        var input = "invalid";
 
         // When and Then
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             TimeConverter.convertToMilliseconds(input);
         });
     }
@@ -41,10 +43,10 @@ public class TimeConverterTest {
     @Test
     void testConvertToMilliseconds_emptyInput() {
         // Given
-        String input = "";
+        var input = "";
 
         // When and Then
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             TimeConverter.convertToMilliseconds(input);
         });
     }

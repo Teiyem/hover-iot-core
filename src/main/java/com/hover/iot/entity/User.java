@@ -1,4 +1,4 @@
-package com.hover.iot.model;
+package com.hover.iot.entity;
 
 import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -9,10 +9,10 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * A user model class.
+ * An entity class that represents an application user.
  */
 @Entity
-@Table(name = "tbl_user")
+@Table(name = "TBL_USER")
 public class User implements UserDetails {
     /**
      * The user's id.
@@ -49,6 +49,7 @@ public class User implements UserDetails {
      * The user's token.
      */
     @ElementCollection
+    @Convert(disableConversion = true)
     private List<String> tokens;
 
     /**

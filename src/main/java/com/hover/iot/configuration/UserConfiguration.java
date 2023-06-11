@@ -1,6 +1,6 @@
 package com.hover.iot.configuration;
 
-import com.hover.iot.model.User;
+import com.hover.iot.entity.User;
 import com.hover.iot.repository.UserRepository;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.context.annotation.Bean;

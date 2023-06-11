@@ -1,29 +1,25 @@
 package com.hover.iot.service.implementation;
 
-import com.hover.iot.dto.DeviceDto;
-import com.hover.iot.enumeration.AttributeType;
-import com.hover.iot.event.EntityEvent;
+import com.hover.iot.dto.DeviceDTO;
+import com.hover.iot.dto.RoomDTO;
+import com.hover.iot.entity.Device;
+import com.hover.iot.event.EntityChangeEvent;
 import com.hover.iot.exception.EntityNotFoundException;
 import com.hover.iot.mapper.DeviceDTOMapper;
-import com.hover.iot.model.*;
-import com.hover.iot.platform.PlatformApi;
+import com.hover.iot.platform.IPlatformApi;
 import com.hover.iot.repository.DeviceRepository;
 import com.hover.iot.repository.RoomRepository;
-import com.hover.iot.request.AddDeviceRequest;
-import com.hover.iot.request.DeviceAttributeRequest;
-import com.hover.iot.request.UpdateDeviceRequest;
-import com.hover.iot.service.IRoomService;
 import com.hover.iot.test.utils.DeviceTestUtils;
-import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.context.ApplicationEventPublisher;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -50,13 +46,13 @@ public class DeviceServiceTest {
     private RoomRepository roomRepository;
 
     @Mock
-    private List<PlatformApi> platformApiList = new ArrayList<>();
+    private List<IPlatformApi> platformApiList = new ArrayList<>();
 
     @Test
     public void testAdd_ValidRequest() {
         // Given
-        AddDeviceRequest request = DeviceTestUtils.createTestAddDeviceRequest();
-        Room room = DeviceTestUtils.createTestRoom();
+        var request = DeviceTestUtils.createTestAddDeviceRequest();
+        var room = DeviceTestUtils.createTestRoom();
 
         // Mock
         when(roomRepository.findByName(request.room())).thenReturn(Optional.of(room));
@@ -66,21 +62,24 @@ public class DeviceServiceTest {
 
         // Then
         verify(deviceRepository, times(1)).save(any(Device.class));
-        verify(eventPublisher, times(1)).publishEvent(any(EntityEvent.class));
+        verify(eventPublisher, times(1)).publishEvent(any(EntityChangeEvent.class));
     }
 
     @Test
     public void testGetById_ExistingDeviceId() {
         // Given
-        Device device = DeviceTestUtils.createTestDevice(1L);
+        var device = DeviceTestUtils.createTestDevice(1L);
+
+        var room = device.getRoom();
 
         // Mock
         when(deviceRepository.findById(device.getId())).thenReturn(Optional.of(device));
-        when(deviceDTOMapper.apply(device)).thenReturn(new DeviceDto(device.getId(), device.getName(), device.getFirmware(),
-                device.isStatus(), device.getType(), device.getPlatform()));
+        when(deviceDTOMapper.apply(device)).thenReturn(new DeviceDTO(device.getId(), device.getName(),
+                device.getAttributes(), device.getFirmware(),device.isStatus(), new RoomDTO(room.getId(), room.getName()),
+                device.getType(), device.getPlatform()));
 
         // When
-        DeviceDto result = deviceService.getById(device.getId());
+        var result = deviceService.getById(device.getId());
 
         // Then
         assertNotNull(result);
@@ -93,7 +92,7 @@ public class DeviceServiceTest {
     @Test
     public void testGetById_NonExistingDeviceId() {
         // Given
-        Long deviceId = 0L;
+        var deviceId = 0L;
 
         // Mock
         when(deviceRepository.findById(deviceId)).thenReturn(Optional.empty());
@@ -107,13 +106,13 @@ public class DeviceServiceTest {
     @Test
     public void testGetAll_ExistingDevices() {
         // Given
-        List<Device> devices = DeviceTestUtils.createTestDeviceList();
+        var devices = DeviceTestUtils.createTestDeviceList();
 
         // Mock
         when(deviceRepository.findAll()).thenReturn(devices);
 
         // When
-        List<DeviceDto> result = deviceService.getAll();
+        var result = deviceService.getAll();
 
         // Then
         assertNotNull(result);
@@ -125,66 +124,82 @@ public class DeviceServiceTest {
     @Test
     public void testUpdate_ExistingDeviceId() {
         // Given
-        Long deviceId = 1L;
-        Device device = DeviceTestUtils.createTestDevice(deviceId);
-        DeviceDto expectedResult = deviceDTOMapper.apply(device);
+        var deviceId = 0L;
+        var oldDevice = DeviceTestUtils.createTestDevice(deviceId);
+        var newDevice = DeviceTestUtils.createTestDevice(deviceId);
+        newDevice.setName("Room Light");
+        newDevice.setFirmware("2.0.0");
 
-        UpdateDeviceRequest request = DeviceTestUtils.createTestUpdateDeviceRequest();
+        var request = DeviceTestUtils.createTestUpdateDeviceRequest();
+
+        var room = newDevice.getRoom();
+
+        var expected = new DeviceDTO(newDevice.getId(), newDevice.getName(),
+                newDevice.getAttributes(), newDevice.getFirmware(),newDevice.isStatus(), new RoomDTO(room.getId(), room.getName()),
+                newDevice.getType(),
+                newDevice.getPlatform());
 
         // Mock
-        when(deviceRepository.findById(deviceId)).thenReturn(Optional.of(device));
-        when(deviceService.update(deviceId, request)).thenReturn(expectedResult);
-        when(deviceDTOMapper.apply(device)).thenReturn(new DeviceDto(deviceId, device.getName(), device.getFirmware(),
-                device.isStatus(), device.getType(), device.getPlatform()));
+        when(deviceRepository.findById(deviceId)).thenReturn(Optional.of(oldDevice));
+        when(deviceService.update(deviceId, request)).thenReturn(expected);
 
         // When
-        DeviceDto result = deviceService.update(deviceId, request);
+        var actual = deviceService.update(deviceId, request);
 
         // Then
-        assertNotNull(result);
-        assertEquals(device.getId(), result.id());
-        assertEquals(request.name(), result.name());
+        assertNotNull(actual);
+        assertEquals(expected, actual);
 
         verify(deviceRepository, times(2)).findById(deviceId);
-        verify(deviceRepository, times(1)).save(device);
-        verify(eventPublisher, times(1)).publishEvent(any(EntityEvent.class));
+        verify(deviceRepository, times(1)).save(oldDevice);
+        verify(eventPublisher, times(1)).publishEvent(any(EntityChangeEvent.class));
     }
 
     @Test
     public void test_Update_NonExistingDeviceId() {
         // Given
-        Long deviceId = 1L;
+        var deviceId = 1L;
+
+        var request = DeviceTestUtils.createTestUpdateDeviceRequest();
+
+        // Mock
         when(deviceRepository.findById(deviceId)).thenReturn(Optional.empty());
-        UpdateDeviceRequest request = DeviceTestUtils.createTestUpdateDeviceRequest();
 
         // When and Then
         assertThrows(EntityNotFoundException.class, () -> deviceService.update(deviceId, request));
 
         verify(deviceRepository, times(1)).findById(deviceId);
         verify(deviceRepository, times(0)).save(any(Device.class));
-        verify(eventPublisher, times(0)).publishEvent(any(EntityEvent.class));
+        verify(eventPublisher, times(0)).publishEvent(any(EntityChangeEvent.class));
     }
 
     @Test
     public void tesDelete_ExistingDeviceId() {
         // Given
-        Long deviceId = 1L;
+        var deviceId = 1L;
+        var device = DeviceTestUtils.createTestDevice(deviceId);
+
+        // Mock
+        when(deviceRepository.findById(deviceId)).thenReturn(Optional.of(device));
 
         // When
-        boolean result = deviceService.delete(deviceId);
+        var result = deviceService.delete(deviceId);
 
         // Then
         assertTrue(result);
-        verify(deviceRepository, times(1)).deleteById(deviceId);
+        verify(deviceRepository, times(1)).findById(deviceId);
+        verify(deviceRepository, times(1)).delete(device);
     }
 
     @Test
     public void testSetAttribute_ExistingDeviceId() {
         // Given
-        Long deviceId = 1L;
-        Device device = DeviceTestUtils.createTestDevice(deviceId);
+        var deviceId = 1L;
+        var device = DeviceTestUtils.createTestDevice(deviceId);
+        var request = DeviceTestUtils.createTestDeviceAttributeRequest();
+
+        // Mock
         when(deviceRepository.findById(deviceId)).thenReturn(Optional.of(device));
-        DeviceAttributeRequest request = DeviceTestUtils.createTestDeviceAttributeRequest();
 
         // When
         deviceService.setAttribute(deviceId, request);
@@ -192,6 +207,4 @@ public class DeviceServiceTest {
         // Then
         verify(deviceRepository, times(1)).findById(deviceId);
     }
-
-
 }

@@ -1,14 +1,16 @@
-package com.hover.iot.model;
+package com.hover.iot.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+
 import java.util.List;
 import java.util.Objects;
 
 /**
- * A room model class.
+ * An entity class that represents a room.
  */
 @Entity
-@Table(name = "tbl_room")
+@Table(name = "TBL_ROOM")
 public class Room {
     /**
      * The room's id.
@@ -24,7 +26,8 @@ public class Room {
     /**
      * The room's devices.
      */
-    @OneToMany(mappedBy = "room", fetch = FetchType.EAGER, cascade = {CascadeType.MERGE})
+    @OneToMany(mappedBy = "room", cascade=CascadeType.ALL)
+    @JsonManagedReference("room")
     private List<Device> devices;
 
     /**
@@ -34,18 +37,18 @@ public class Room {
     }
 
     /**
-     * Sets the device's id.
+     * Sets the room's id.
      *
-     * @param id The device's id to set.
+     * @param id The room's id to set.
      */
     public void setId(Long id) {
         this.id = id;
     }
 
     /**
-     * Sets the device's name.
+     * Sets the room's name.
      *
-     * @param name The device's name to set.
+     * @param name The room's name to set.
      */
     public void setName(String name) {
         this.name = name;
@@ -79,6 +82,7 @@ public class Room {
     public Long getId() {
         return id;
     }
+
     /**
      * Gets the room's name.
      *

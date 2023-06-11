@@ -1,6 +1,7 @@
 package com.hover.iot.controller;
 
-import com.hover.iot.dto.DeviceDto;
+import com.hover.iot.dto.DeviceDTO;
+import com.hover.iot.enumeration.DeviceType;
 import com.hover.iot.request.AddDeviceRequest;
 import com.hover.iot.request.DeviceAttributeRequest;
 import com.hover.iot.request.UpdateDeviceRequest;
@@ -20,14 +21,14 @@ import java.util.List;
 public class DeviceController {
 
     /**
-     * The device service that is used to handle device management requests.
+     * The service that is used to handle device management requests.
      */
     private final IDeviceService deviceService;
 
     /**
      * Initializes a new instance of {@link DeviceController} class.
      *
-     * @param deviceService The device service that is used to handle device management requests.
+     * @param deviceService The service that is used to handle device management requests.
      */
     public DeviceController(IDeviceService deviceService) {
         this.deviceService = deviceService;
@@ -53,30 +54,42 @@ public class DeviceController {
      * @return A {@link ApiResponse} object containing the device.
      */
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<DeviceDto>> get(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<DeviceDTO>> get(@PathVariable Long id) {
         var response = new ApiResponse<>(HttpStatus.OK, deviceService.getById(id));
         return new ResponseEntity<>(response, response.getStatus());
     }
 
     /**
-     * Handles a request to get a list of device.
+     * Handles a request to get a list of devices.
      *
      * @return A {@link ApiResponse} object containing a list of devices.
      */
     @GetMapping
-    public ResponseEntity<ApiResponse<List<DeviceDto>>> getAll() {
+    public ResponseEntity<ApiResponse<List<DeviceDTO>>> getAll() {
         var response = new ApiResponse<>(HttpStatus.OK, deviceService.getAll());
         return new ResponseEntity<>(response, response.getStatus());
     }
 
     /**
-     * Handles a request to get a list of device by room.
+     * Handles a request to get a list of devices by room.
      *
+     * @param name The name of the room to get the devices by.
      * @return A {@link ApiResponse} object containing a list of devices.
      */
     @GetMapping("/room/{name}")
-    public ResponseEntity<ApiResponse<List<DeviceDto>>> getAllByRoom(@PathVariable String name) {
+    public ResponseEntity<ApiResponse<List<DeviceDTO>>> getAllByRoom(@PathVariable String name) {
         var response = new ApiResponse<>(HttpStatus.OK, deviceService.getByRoom(name));
+        return new ResponseEntity<>(response, response.getStatus());
+    }
+
+    /**
+     * Handles a request to get a list of devices by type.
+     * @param type The name of the type to get the devices by.
+     * @return A {@link ApiResponse} object containing a list of devices.
+     */
+    @GetMapping("/group/{type}")
+    public ResponseEntity<ApiResponse<List<DeviceDTO>>> getAllByType(@PathVariable DeviceType type) {
+        var response = new ApiResponse<>(HttpStatus.OK, deviceService.getByType(type));
         return new ResponseEntity<>(response, response.getStatus());
     }
 
@@ -88,7 +101,7 @@ public class DeviceController {
      * @return A {@link ApiResponse} object containing the updated device.
      */
     @PutMapping("/{id}/attribute")
-    public ResponseEntity<ApiResponse<Object>> setAttribute(@PathVariable Long id, DeviceAttributeRequest request) {
+    public ResponseEntity<ApiResponse<Object>> writeAttribute(@PathVariable Long id, DeviceAttributeRequest request) {
         deviceService.setAttribute(id, request);
         var response = new ApiResponse<>(HttpStatus.OK, "Successfully updated device attribute");
         return new ResponseEntity<>(response, response.getStatus());
@@ -102,11 +115,10 @@ public class DeviceController {
      * @return A {@link ApiResponse} object containing the updated device.
      */
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<DeviceDto>> update(@PathVariable Long id, @RequestBody UpdateDeviceRequest request) {
+    public ResponseEntity<ApiResponse<DeviceDTO>> update(@PathVariable Long id, @RequestBody UpdateDeviceRequest request) {
         var response = new ApiResponse<>(HttpStatus.OK, deviceService.update(id, request));
         return new ResponseEntity<>(response, response.getStatus());
     }
-
 
     /**
      * Handles a request to delete a device.
@@ -119,5 +131,4 @@ public class DeviceController {
         var response = new ApiResponse<>(HttpStatus.OK, deviceService.delete(id));
         return new ResponseEntity<>(response, response.getStatus());
     }
-
 }

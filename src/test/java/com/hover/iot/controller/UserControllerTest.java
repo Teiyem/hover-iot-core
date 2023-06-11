@@ -1,6 +1,6 @@
 package com.hover.iot.controller;
 
-import com.hover.iot.model.User;
+import com.hover.iot.entity.User;
 import com.hover.iot.repository.UserRepository;
 import com.hover.iot.request.LoginRequest;
 import com.hover.iot.request.RegisterRequest;
@@ -41,7 +41,7 @@ public class UserControllerTest {
 
     @BeforeEach
     public void setUp() {
-        User user = new User("Test", "testUser", passwordEncoder.encode("password"),
+        var user = new User("Test", "testUser", passwordEncoder.encode("password"),
                 new ArrayList<>());
 
         userRepository.save(user);
@@ -50,7 +50,7 @@ public class UserControllerTest {
     @Test
     void testRegister_existingUser() {
         //Given
-        RegisterRequest request = new RegisterRequest("Test", "testUser", "password");
+        var request = new RegisterRequest("Test", "testUser", "password");
 
         // When and Then
         webTestClient.post()
@@ -75,7 +75,7 @@ public class UserControllerTest {
     @Test
     void testRegister_newUser() {
         //Given
-        RegisterRequest request = new RegisterRequest("John Doe", "johnDoe", "password123");
+        var request = new RegisterRequest("John Doe", "johnDoe", "password123");
 
         // When and Then
         webTestClient.post()
@@ -100,7 +100,7 @@ public class UserControllerTest {
     @Test
     void testLogin_invalidCredentials() {
         // Given
-        LoginRequest request = new LoginRequest("fakeUser", "fakePassword");
+        var request = new LoginRequest("fakeUser", "fakePassword");
 
         // When and Then
         webTestClient.post()
@@ -124,7 +124,7 @@ public class UserControllerTest {
     @Test
     void testLogin_validCredentials() {
         // Given
-        LoginRequest request = new LoginRequest("testUser", "password");
+        var request = new LoginRequest("testUser", "password");
 
         // When and Then
         webTestClient.post()
@@ -143,15 +143,15 @@ public class UserControllerTest {
                     assertNull(response.getMessage());
                     assertNotNull(response.getTimeStamp());
                     assertNotNull(response.getData());
-                    assertNotNull(response.getData().getToken());
-                    assertNotNull(response.getData().getRefreshToken());
+                    assertNotNull(response.getData().accessToken());
+                    assertNotNull(response.getData().refreshToken());
                 });
     }
 
     @Test
     void testRefresh() {
         // Given When Then
-        AuthenticationResponse authResponse = Objects.requireNonNull(webTestClient.post()
+        var authResponse = Objects.requireNonNull(webTestClient.post()
                 .uri("/api/v1/user/login")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -164,12 +164,13 @@ public class UserControllerTest {
                 .getResponseBody()).getData();
 
         // Given
-        String accessToken = authResponse.getToken();
-        String refreshToken = authResponse.getRefreshToken();
+        var accessToken = authResponse.accessToken();
+        var refreshToken = authResponse.refreshToken();
 
-        TokenRequest request = new TokenRequest(refreshToken);
+        var request = new TokenRequest(refreshToken);
 
-        AuthenticationResponse refreshResponse = Objects.requireNonNull(webTestClient.post()
+        // When
+        var refreshResponse = Objects.requireNonNull(webTestClient.post()
                 .uri("/api/v1/user/refresh")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
                 .accept(MediaType.APPLICATION_JSON)
@@ -182,14 +183,15 @@ public class UserControllerTest {
                 .returnResult()
                 .getResponseBody()).getData();
 
-        assertNotNull(refreshResponse.getToken());
-        assertNotNull(refreshResponse.getRefreshToken());
+        // Then
+        assertNotNull(refreshResponse.accessToken());
+        assertNotNull(refreshResponse.refreshToken());
     }
 
     @Test
     void testLogout() {
         // Given And When And Then
-        AuthenticationResponse authResponse = Objects.requireNonNull(webTestClient.post()
+        var authResponse = Objects.requireNonNull(webTestClient.post()
                 .uri("/api/v1/user/login")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -202,8 +204,8 @@ public class UserControllerTest {
                 .getResponseBody()).getData();
 
         // Given
-        String accessToken = authResponse.getToken();
-        TokenRequest request = new TokenRequest(authResponse.getRefreshToken());
+        var accessToken = authResponse.accessToken();
+        var request = new TokenRequest(authResponse.refreshToken());
 
         // When And Then
         webTestClient.post()

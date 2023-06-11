@@ -8,6 +8,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
  * Application entry point.
  */
 @SpringBootApplication
+@EnableScheduling
 public class Application {
 
     /**

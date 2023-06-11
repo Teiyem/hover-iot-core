@@ -1,6 +1,6 @@
 package com.hover.iot.repository;
 
-import com.hover.iot.model.Vault;
+import com.hover.iot.entity.Vault;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

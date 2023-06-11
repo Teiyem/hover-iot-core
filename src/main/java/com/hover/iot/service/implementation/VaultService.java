@@ -3,12 +3,11 @@ package com.hover.iot.service.implementation;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hover.iot.exception.EntityNotFoundException;
 import com.hover.iot.exception.ResourceConflictException;
-import com.hover.iot.model.Vault;
+import com.hover.iot.entity.Vault;
 import com.hover.iot.repository.VaultRepository;
 import com.hover.iot.security.EncryptionProvider;
 import com.hover.iot.service.IVaultService;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -46,7 +45,7 @@ public class VaultService implements IVaultService {
         try {
             vaultRepository.save(vault);
         } catch (Exception exception) {
-            throw new ResourceConflictException("Failed to store data in the vault");
+            throw new ResourceConflictException("Vault operation error");
         }
     }
 
@@ -77,17 +76,18 @@ public class VaultService implements IVaultService {
             return null;
         }
     }
+
     /**
      * {@inheritDoc}
      */
     @Override
     public void update(@NotNull Vault vault) {
-        var curVault = vaultRepository.findVaultByKey(vault.getKey())
+        var oldVault = vaultRepository.findVaultByKey(vault.getKey())
                 .orElseThrow(() -> new EntityNotFoundException("Failed to get vault data"));
 
-        curVault.setData(vault.getData());
+        oldVault.setData(vault.getData());
 
-        vaultRepository.save(curVault);
+        vaultRepository.save(oldVault);
 
     }
 

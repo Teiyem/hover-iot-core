@@ -1,6 +1,7 @@
 package com.hover.iot.service.implementation;
 
 import com.hover.iot.enumeration.TokenType;
+import com.hover.iot.result.TokenResult;
 import com.hover.iot.service.ITokenService;
 import com.hover.iot.util.TimeConverter;
 import io.jsonwebtoken.Claims;
@@ -16,6 +17,8 @@ import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.function.Function;
 
 /**
@@ -53,7 +56,7 @@ public class TokenService implements ITokenService {
      * {@inheritDoc}
      */
     @Override
-    public String createToken(@NotNull UserDetails user, TokenType tokenType) {
+    public TokenResult createToken(@NotNull UserDetails user, TokenType tokenType) {
         return createToken(new HashMap<>(), user, tokenType);
     }
 
@@ -61,15 +64,19 @@ public class TokenService implements ITokenService {
      * {@inheritDoc}
      */
     @Override
-    public String createToken(Map<String, Object> claims, @NotNull UserDetails user, TokenType tokenType) {
-        var expiration = tokenType == TokenType.ACCESS ? accessTokenExp : refreshTokenExp;
+    public TokenResult createToken(Map<String, Object> claims, @NotNull UserDetails user, TokenType tokenType) {
+        var tokenExpiration = tokenType == TokenType.ACCESS ? accessTokenExp : refreshTokenExp;
 
-        return Jwts.builder().setClaims(claims)
+        var expiration = new Date(System.currentTimeMillis() + TimeConverter.convertToMilliseconds(tokenExpiration));
+
+        var token = Jwts.builder().setClaims(claims)
                 .setSubject(user.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + TimeConverter.convertToMilliseconds(expiration)))
+                .setExpiration(expiration)
                 .signWith(getSecret(tokenType))
                 .compact();
+
+        return new TokenResult(token, expiration.getTime());
     }
 
     /**
@@ -118,9 +125,9 @@ public class TokenService implements ITokenService {
     /**
      * Extracts all the claims from a JWT token by parsing the token and retrieving its body.
      *
-     * @param token     the JWT token to extract the claims from
-     * @param tokenType the type of token (access or refresh)
-     * @return the extracted claims
+     * @param token     The JWT token to extract the claims from.
+     * @param tokenType The type of token (access or refresh).
+     * @return The extracted claims
      */
     private Claims extractAllClaims(String token, TokenType tokenType) {
         return Jwts.parserBuilder()
@@ -133,8 +140,8 @@ public class TokenService implements ITokenService {
     /**
      * Gets the secret key for a JWT token based on its type.
      *
-     * @param tokenType the type of token (access or refresh)
-     * @return the secret key for the token
+     * @param tokenType The type of token (access or refresh).
+     * @return The secret key for the token.
      */
     private @NotNull Key getSecret(TokenType tokenType) {
         final String key = tokenType == TokenType.ACCESS ? accessTokenKey : refreshTokenKey;

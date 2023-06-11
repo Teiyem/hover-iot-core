@@ -1,7 +1,6 @@
 package com.hover.iot.service;
 
-import com.hover.iot.dto.RoomDto;
-import com.hover.iot.model.Room;
+import com.hover.iot.dto.RoomDTO;
 
 import java.util.List;
 
@@ -22,7 +21,7 @@ public interface IRoomService {
      *
      * @return The list of DTO representations of rooms.
      */
-    List<RoomDto> getAll();
+    List<RoomDTO> getAll();
 
     /**
      * Updates a device with the specified ID.

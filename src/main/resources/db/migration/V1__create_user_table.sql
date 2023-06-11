@@ -1,4 +1,4 @@
-CREATE TABLE tbl_user
+CREATE TABLE TBL_USER
 (
     id       BIGSERIAL PRIMARY KEY,
     name     TEXT        NOT NULL,
@@ -6,9 +6,9 @@ CREATE TABLE tbl_user
     password TEXT        NOT NULL
 );
 
-CREATE TABLE user_tokens
+CREATE TABLE TBL_USER_TOKEN
 (
     user_id SERIAL PRIMARY KEY,
     tokens  TEXT NOT NULL,
-    CONSTRAINT user_tokens_fk FOREIGN KEY (user_id) REFERENCES tbl_user (id) ON DELETE CASCADE
+    CONSTRAINT USER_TOKENS_FK FOREIGN KEY (user_id) REFERENCES TBL_USER (id) ON DELETE CASCADE
 );

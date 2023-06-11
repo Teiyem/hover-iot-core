@@ -1,27 +1,37 @@
-package com.hover.iot.model;
+package com.hover.iot.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
+import com.hover.iot.enumeration.DeviceType;
 import jakarta.persistence.*;
+import org.hibernate.annotations.UpdateTimestamp;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * A device model class.
+ * An entity class that represents a device.
  */
 @Entity
-@Table(name = "tbl_device")
+@Table(name = "TBL_DEVICE")
 public class Device {
+
     /**
      * The device's id.
      */
     @Id
     @SequenceGenerator(
-            name = "tbl_device_id_seq",
-            sequenceName = "tbl_device_id_seq",
+            name = "TBL_DEVICE_ID_SEQ",
+            sequenceName = "TBL_DEVICE_ID_SEQ",
             allocationSize = 1
     )
     @GeneratedValue(
             strategy = GenerationType.SEQUENCE,
-            generator = "tbl_device_id_seq"
+            generator = "TBL_DEVICE_ID_SEQ"
     )
     private Long id;
 
@@ -33,10 +43,11 @@ public class Device {
     /**
      * The device's net address or url.
      */
+    @JsonIgnore
     private String host;
 
     /**
-     * The device's attribute.
+     * The device's attributes.
      */
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "device_id")
@@ -55,13 +66,16 @@ public class Device {
     /**
      * The device's room.
      */
+    @JoinColumn(name = "room_id")
     @ManyToOne(cascade = CascadeType.ALL)
+    @JsonBackReference("room")
     private Room room;
 
     /**
      * The device's type.
      */
-    private String type;
+    @Enumerated(EnumType.STRING)
+    private DeviceType type;
 
     /**
      * The device's platform.
@@ -69,9 +83,19 @@ public class Device {
     private String platform;
 
     /**
-     * The device's uuid
+     * The device's uuid.
      */
+    @JsonIgnore
     private String uuid;
+
+    /**
+     * The device's updated at time.
+     */
+
+    @UpdateTimestamp
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    private LocalDateTime updatedAt;
 
     /**
      * Initializes a new instance of {@link Device} class.
@@ -191,6 +215,7 @@ public class Device {
 
     /**
      * Gets the device's room.
+     *
      * @return The device's room.
      */
     public Room getRoom() {
@@ -211,7 +236,7 @@ public class Device {
      *
      * @return The device's type.
      */
-    public String getType() {
+    public DeviceType getType() {
         return type;
     }
 
@@ -220,7 +245,7 @@ public class Device {
      *
      * @param type The device's type to set.
      */
-    public void setType(String type) {
+    public void setType(DeviceType type) {
         this.type = type;
     }
 
@@ -258,6 +283,24 @@ public class Device {
      */
     public void setUuid(String uuid) {
         this.uuid = uuid;
+    }
+
+    /**
+     * Gets the device's updated at date.
+     *
+     * @return The device's updated at date.
+     */
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    /**
+     * Sets the device's updated at date.
+     *
+     * @param updatedAt The device's updated at date to set.
+     */
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
     }
 
     /**

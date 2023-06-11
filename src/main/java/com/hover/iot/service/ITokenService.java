@@ -1,6 +1,7 @@
 package com.hover.iot.service;
 
 import com.hover.iot.enumeration.TokenType;
+import com.hover.iot.result.TokenResult;
 import io.jsonwebtoken.Claims;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -20,9 +21,9 @@ public interface ITokenService {
      *
      * @param user      the user to create the token for
      * @param tokenType the type of the token to create
-     * @return the generated token as a String
+     * @return The result of the token creation, including the token and its expiration time in milliseconds.
      */
-    String createToken(@NotNull UserDetails user, TokenType tokenType);
+    TokenResult createToken(@NotNull UserDetails user, TokenType tokenType);
 
     /**
      * Creates a token for the given user with the specified token type and custom claims.
@@ -30,9 +31,9 @@ public interface ITokenService {
      * @param claims    custom claims to be included in the token
      * @param user      the user to create the token for
      * @param tokenType the type of the token to create
-     * @return the generated token as a String
+     * @return The result of the token creation, including the token and its expiration time in milliseconds.
      */
-    String createToken(Map<String, Object> claims, @NotNull UserDetails user, TokenType tokenType);
+    TokenResult createToken(Map<String, Object> claims, @NotNull UserDetails user, TokenType tokenType);
 
     /**
      * Checks if the provided token is valid for the given user and token type.

@@ -1,10 +1,11 @@
 package com.hover.iot.service.implementation;
 
-import com.hover.iot.dto.RoomDto;
+import com.hover.iot.dto.RoomDTO;
 import com.hover.iot.exception.EntityNotFoundException;
 import com.hover.iot.mapper.RoomDTOMapper;
-import com.hover.iot.model.Room;
+import com.hover.iot.entity.Room;
 import com.hover.iot.repository.RoomRepository;
+import com.hover.iot.service.IDeviceService;
 import com.hover.iot.service.IRoomService;
 import org.springframework.stereotype.Service;
 
@@ -12,7 +13,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * A service interface that defines the methods for managing rooms.
+ * A service class that handles operations related to room management. Implements the {@link IRoomService} interface.
  */
 @Service
 public class RoomService implements IRoomService {
@@ -25,7 +26,7 @@ public class RoomService implements IRoomService {
     /**
      * The DTO mapper for rooms.
      */
-    private RoomDTOMapper roomDTOMapper;
+    private final RoomDTOMapper roomDTOMapper;
 
     /**
      * Initializes a new instance of {@link DeviceService} class.
@@ -53,7 +54,7 @@ public class RoomService implements IRoomService {
      * {@inheritDoc}
      */
     @Override
-    public List<RoomDto> getAll() {
+    public List<RoomDTO> getAll() {
         return roomRepository.findAll()
                 .stream()
                 .map(roomDTOMapper)

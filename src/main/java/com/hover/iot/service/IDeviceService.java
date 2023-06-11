@@ -1,6 +1,8 @@
 package com.hover.iot.service;
 
-import com.hover.iot.dto.DeviceDto;
+import com.hover.iot.dto.DeviceDTO;
+import com.hover.iot.enumeration.DeviceType;
+import com.hover.iot.exception.EntityNotFoundException;
 import com.hover.iot.request.AddDeviceRequest;
 import com.hover.iot.request.DeviceAttributeRequest;
 import com.hover.iot.request.UpdateDeviceRequest;
@@ -23,40 +25,50 @@ public interface IDeviceService {
      * Gets a device by its ID.
      *
      * @param id The ID of the device to get.
-     * @return The DTO representation of the device.
+     * @return The device.
+     * @throws EntityNotFoundException If the device does not exist.
      */
-    DeviceDto getById(Long id);
+    DeviceDTO getById(Long id);
 
     /**
      * Gets a list of all devices in a room.
      *
      * @param name The name of room devices to get.
-     * @return The DTO representation of the device.
+     * @return A list of devices.
      */
-    List<DeviceDto> getByRoom(String name);
+    List<DeviceDTO> getByRoom(String name);
 
+    /**
+     * Gets a list of all devices by type.
+     *
+     * @param type The type of devices to get.
+     * @return A list of devices.
+     */
+    List<DeviceDTO> getByType(DeviceType type);
 
     /**
      * Gets a list of all devices.
      *
-     * @return The list of DTO representations of devices.
+     * @return The list of devices.
      */
-    List<DeviceDto> getAll();
+    List<DeviceDTO> getAll();
 
     /**
      * Updates a device with the specified ID.
      *
      * @param id      The ID of the device to update.
      * @param request The request containing the updated information for the device.
-     * @return The DTO representation of the updated device.
+     * @return The updated device.
+     * @throws EntityNotFoundException If the device does not exist.
      */
-    DeviceDto update(Long id, UpdateDeviceRequest request);
+    DeviceDTO update(Long id, UpdateDeviceRequest request);
 
     /**
      * Deletes a device with the specified ID.
      *
      * @param id The ID of the device to delete.
      * @return true If the device was successfully deleted, otherwise false.
+     * @throws EntityNotFoundException If the device does not exist.
      */
     boolean delete(Long id);
 
@@ -65,10 +77,7 @@ public interface IDeviceService {
      *
      * @param id      The ID of the device.
      * @param request The request containing the attribute information to set.
+     * @throws EntityNotFoundException If the device does not exist.
      */
     void setAttribute(Long id, DeviceAttributeRequest request);
 }
-
-
-
-

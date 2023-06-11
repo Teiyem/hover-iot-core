@@ -8,7 +8,13 @@ import java.util.Map;
 /**
  * A utility class to convert durations in various time units to milliseconds or cron expressions.
  */
-public class TimeConverter {
+public final class TimeConverter {
+
+    /**
+     * Private constructor to prevent instantiation.
+     */
+    private TimeConverter() {
+    }
 
     /**
      * A map of multipliers for converting durations in different time units to milliseconds.
@@ -34,7 +40,7 @@ public class TimeConverter {
             throw new IllegalArgumentException("Input cannot be null or empty");
         }
 
-        char unit = Character.toLowerCase(input.charAt(input.length() - 1));
+        var unit = Character.toLowerCase(input.charAt(input.length() - 1));
         if (!MULTIPLIERS.containsKey(unit)) {
             throw new IllegalArgumentException("Invalid input unit: " + unit);
         }

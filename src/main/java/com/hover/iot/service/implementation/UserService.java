@@ -3,7 +3,7 @@ package com.hover.iot.service.implementation;
 import com.hover.iot.enumeration.TokenType;
 import com.hover.iot.exception.EntityNotFoundException;
 import com.hover.iot.exception.ResourceConflictException;
-import com.hover.iot.model.User;
+import com.hover.iot.entity.User;
 import com.hover.iot.repository.UserRepository;
 import com.hover.iot.request.*;
 import com.hover.iot.response.AuthenticationResponse;
@@ -11,6 +11,7 @@ import com.hover.iot.service.ITokenService;
 import com.hover.iot.service.IUserService;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * A service class that handles operations related to user management. Implements the {@link IUserService} interface.
@@ -26,7 +28,7 @@ import java.util.List;
 public class UserService implements IUserService {
 
     /**
-     * The user repository that is used for user data storage and retrieval.
+     * The repository that is used for user data storage and retrieval.
      */
     private final UserRepository userRepository;
 
@@ -48,9 +50,9 @@ public class UserService implements IUserService {
     /**
      * Initializes a new instance of {@link UserService}.
      *
-     * @param userRepository        The user repository to use for user data storage and retrieval.
+     * @param userRepository        The user repository to be used.
      * @param passwordEncoder       The password encoder to use for user password hashing and validation.
-     * @param tokenService          The token service to use for token generation and management.
+     * @param tokenService          The token service to used.
      * @param authenticationManager The authentication manager to use for user authentication.
      */
     public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, ITokenService tokenService,
@@ -93,17 +95,7 @@ public class UserService implements IUserService {
         var user = userRepository.findByUsername(request.username())
                 .orElseThrow(() -> new EntityNotFoundException("Invalid Username or Password!"));
 
-        var token = tokenService.createToken(user, TokenType.ACCESS);
-        var refreshToken = tokenService.createToken(user, TokenType.REFRESH);
-
-        var tokens = user.getTokens();
-        tokens.add(refreshToken);
-
-        user.setTokens(tokens);
-
-        userRepository.save(user);
-
-        return new AuthenticationResponse(token, refreshToken);
+        return createAuthenticationResponse(user);
     }
 
     /**
@@ -111,13 +103,40 @@ public class UserService implements IUserService {
      */
     @Override
     public AuthenticationResponse refresh(@NotNull TokenRequest request) {
-
         var user = userRepository.findByTokensContaining(request.token())
                 .orElseThrow();
 
-        var token = tokenService.createToken(user, TokenType.ACCESS);
+        var isRefreshTokenValid = tokenService.isTokenValid(request.token(), user, TokenType.REFRESH);
 
-        return new AuthenticationResponse(token, request.token());
+        if(!isRefreshTokenValid)
+            throw new BadCredentialsException("Please login again");
+
+        user.setTokens(user.getTokens().stream()
+                .filter(token -> !token.equals(request.token()))
+                .collect(Collectors.toList()));
+
+        return createAuthenticationResponse(user);
+    }
+
+    /**
+     * Creates an {@link AuthenticationResponse}.
+     *
+     * @param user The user for whom the authentication response is created.
+     * @return An {@link AuthenticationResponse} containing the tokens and their expirations.
+     */
+    private @NotNull AuthenticationResponse createAuthenticationResponse(User user) {
+        var accessTokenResult = tokenService.createToken(user, TokenType.ACCESS);
+        var refreshTokenResult = tokenService.createToken(user, TokenType.REFRESH);
+
+        var tokens = user.getTokens();
+        tokens.add(refreshTokenResult.token());
+
+        user.setTokens(tokens);
+
+        userRepository.save(user);
+
+        return new AuthenticationResponse(accessTokenResult.token(), refreshTokenResult.token(),
+                accessTokenResult.exp(), refreshTokenResult.exp());
     }
 
     /**

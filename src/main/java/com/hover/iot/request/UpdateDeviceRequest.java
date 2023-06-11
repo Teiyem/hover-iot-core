@@ -1,10 +1,7 @@
 package com.hover.iot.request;
 
-import com.hover.iot.model.Attribute;
 import com.hover.iot.model.Credentials;
-import com.hover.iot.model.Device;
-
-import java.util.List;
+import com.hover.iot.entity.Device;
 
 /**
  * A representation of a request for updating an existing {@link Device}.

@@ -1,8 +1,9 @@
 package com.hover.iot.exception;
 
 import com.hover.iot.response.ApiResponse;
-import jakarta.servlet.http.HttpServletRequest;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -17,14 +18,21 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 public class DefaultExceptionHandler {
 
     /**
-     * Handle {@link ResourceConflictException} exception and return a custom response with a conflict status.
+     * The logger for the {@link DefaultExceptionHandler} class.
+     */
+    private final static Logger LOGGER = LoggerFactory.getLogger(DefaultExceptionHandler.class);
+
+    /**
+     * Handles a {@link ResourceConflictException} exception and return a custom response with a conflict status.
      *
      * @param e        The exception that occurred.
-     * @param request  The current HTTP request.
      * @return         A response entity with the custom response object and status.
      */
     @ExceptionHandler(ResourceConflictException.class)
-    public ResponseEntity<ApiResponse<Object>> handleException(@NotNull ResourceConflictException e, HttpServletRequest request) {
+    public ResponseEntity<ApiResponse<Object>> handleException(@NotNull ResourceConflictException e) {
+        if(LOGGER.isDebugEnabled())
+            LOGGER.debug("An entity conflict occurred while attempting to create an entity", e);
+
         ApiResponse<Object> response = new ApiResponse<>(HttpStatus.CONFLICT.value(),
                 HttpStatus.CONFLICT, e.getMessage());
 
@@ -32,14 +40,16 @@ public class DefaultExceptionHandler {
     }
 
     /**
-     * Handle {@link EntityNotFoundException} exception and return a custom response with a not found status.
+     * Handles an {@link EntityNotFoundException} exception and return a custom response with a not found status.
      *
      * @param e        The exception that occurred.
-     * @param request  The current HTTP request.
      * @return         A response entity with the custom response object and status.
      */
     @ExceptionHandler(EntityNotFoundException.class)
-    public ResponseEntity<ApiResponse<Object>> handleException(@NotNull UsernameNotFoundException e, HttpServletRequest request) {
+    public ResponseEntity<ApiResponse<Object>> handleException(@NotNull UsernameNotFoundException e) {
+        if(LOGGER.isDebugEnabled())
+            LOGGER.debug("An attempt to retrieve an entity doesn't exits has occurred", e);
+
         ApiResponse<Object> response = new ApiResponse<>(HttpStatus.NOT_FOUND.value(),
                 HttpStatus.NOT_FOUND, e.getMessage());
 
@@ -47,14 +57,16 @@ public class DefaultExceptionHandler {
     }
 
     /**
-     * Handle {@link BadCredentialsException} exception and return a custom response with an unauthorized status.
+     * Handles a {@link BadCredentialsException} exception and return a custom response with an unauthorized status.
      *
      * @param e        The exception that occurred.
-     * @param request  The current HTTP request.
      * @return         A response entity with the custom response object and status.
      */
     @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<ApiResponse<Object>> handleException(@NotNull BadCredentialsException e, HttpServletRequest request) {
+    public ResponseEntity<ApiResponse<Object>> handleException(@NotNull BadCredentialsException e) {
+        if(LOGGER.isDebugEnabled())
+            LOGGER.debug("An attempt to login or generate a token with invalid credentials has occurred", e);
+
         ApiResponse<Object> response = new ApiResponse<>(HttpStatus.UNAUTHORIZED.value(),
                 HttpStatus.UNAUTHORIZED, e.getMessage());
 
@@ -62,14 +74,15 @@ public class DefaultExceptionHandler {
     }
 
     /**
-     * Handle generic {@link Exception} and return a custom response with an internal server error status.
+     * Handles an {@link Exception} and return a custom response with an internal server error status.
      *
      * @param e        The exception that occurred.
-     * @param request  The current HTTP request.
      * @return         A response entity with the custom response object and status.
      */
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiResponse<Object>> handleException(@NotNull Exception e, HttpServletRequest request) {
+    public ResponseEntity<ApiResponse<Object>> handleException(@NotNull Exception e) {
+        if(LOGGER.isDebugEnabled())
+            LOGGER.debug("An error has occurred", e);
 
         ApiResponse<Object> response = new ApiResponse<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), HttpStatus.INTERNAL_SERVER_ERROR,
                 e.getMessage());

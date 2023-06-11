@@ -1,7 +1,6 @@
 package com.hover.iot.repository;
 
-import com.hover.iot.model.User;
-import com.hover.iot.model.Vault;
+import com.hover.iot.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
