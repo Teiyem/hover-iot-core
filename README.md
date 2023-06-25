@@ -6,7 +6,7 @@ Hover (**H**ome Aut**o**mation Ser**ver**) is a central hub for managing and mon
 ## Features
 * Authentication and authorization of user actions. ✅
 * Managing and monitoring smart home devices. ✅
-* Automations and Scenes. ⚠️
+* Automations and Scenes. ✅
 * Persistence of smart home device data. ✅
 
 ## Technologies Used
@@ -16,6 +16,8 @@ Hover (**H**ome Aut**o**mation Ser**ver**) is a central hub for managing and mon
 * Spring Data JPA.
 * Spring Security.
 * PostgreSQL.
+* Docker.
+* Hashicorp Vault.
 
 ## Getting Started
 To run Hover on your local machine, you will need to have Java 17, Maven and Docker installed. Follow these steps to get started:
