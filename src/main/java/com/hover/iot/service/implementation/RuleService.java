@@ -1,11 +1,11 @@
 package com.hover.iot.service.implementation;
 
 import com.hover.iot.engine.IRuleEngine;
-import com.hover.iot.entity.Device;
 import com.hover.iot.entity.Rule;
-import com.hover.iot.event.EntityChangeEvent;
+import com.hover.iot.event.AttributeEvent;
 import com.hover.iot.exception.RuleNotFoundException;
 import com.hover.iot.repository.RuleRepository;
+import com.hover.iot.service.IDeviceService;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,8 +39,9 @@ public class RuleService {
     /**
      * Constructs a new RuleService with the specified RuleEngine and RuleRepository.
      *
-     * @param IRuleEngine      the RuleEngine used for rule evaluation
-     * @param ruleRepository  the RuleRepository used for rule persistence
+     * @param IRuleEngine    The RuleEngine used for rule evaluation
+     * @param deviceService  The service used to get devices.
+     * @param ruleRepository The RuleRepository used for rule persistence
      */
     public RuleService(IRuleEngine IRuleEngine, RuleRepository ruleRepository) {
         this.IRuleEngine = IRuleEngine;
@@ -53,13 +54,14 @@ public class RuleService {
      * @param rule the rule to create
      * @return the created rule
      */
+    @Transactional
     public Rule create(Rule rule) {
         LOGGER.info("Creating rule: {}", rule);
 
-        Rule _rule;
+        Rule savedRule;
 
         try {
-            _rule = ruleRepository.save(rule);
+            savedRule = ruleRepository.save(rule);
 
             synchronized(IRuleEngine) {
                 IRuleEngine.registerRule(rule);
@@ -72,7 +74,7 @@ public class RuleService {
 
         LOGGER.info("Creating rule: {}", rule);
 
-        return _rule;
+        return savedRule;
     }
 
     /**
@@ -82,6 +84,7 @@ public class RuleService {
      * @return the retrieved rule
      * @throws RuleNotFoundException if the rule with the specified ID does not exist
      */
+    @Transactional
     public Rule get(Long id) {
         return ruleRepository.findById(id)
                 .orElseThrow(() -> new RuleNotFoundException(id));
@@ -92,6 +95,7 @@ public class RuleService {
      *
      * @return the list of rules
      */
+    @Transactional
     public List<Rule> getList() {
         return ruleRepository.findAll();
     }
@@ -144,16 +148,12 @@ public class RuleService {
      * @param event The entity change event.
      */
     @Async
-    @EventListener(condition = "#event.entity == T(com.hover.iot.entity.Device) && #event.changeType == T(com.hover.iot.enumeration.ChangeType).MODIFIED")
-    public void onChangeEvent(@NotNull EntityChangeEvent event) {
-        LOGGER.info("Entity change event received -> {}", event);
+    @EventListener
+    public void onChangeEvent(@NotNull AttributeEvent event) {
+        LOGGER.debug("Attribute event received for -> {} with -> {}", event.getDevice().getId(), event.getAttribute());
 
-        synchronized (IRuleEngine) {
-            if (event.getEntity() instanceof Device) {
-                IRuleEngine.evaluatePossibleTrigger((Device) event.getEntity());
-            }
-        }
+        IRuleEngine.evaluatePossibleTrigger(event.getDevice());
 
-        LOGGER.info("Entity change event processed");
+        LOGGER.debug("Attribute change event processed");
     }
 }

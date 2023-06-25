@@ -5,12 +5,12 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.context.ApplicationEvent;
 
 /**
- * An event that occurs on an entity and holds information about the entity, the type of change and the source.
+ * An event that represents a change occurrence of an entity.
  */
 public class EntityChangeEvent extends ApplicationEvent {
 
     /**
-     * The entity that is the subject of the event.
+     * The entity that has changed..
      */
     private final Object entity;
 

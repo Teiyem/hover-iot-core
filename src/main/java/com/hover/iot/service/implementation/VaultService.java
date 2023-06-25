@@ -4,12 +4,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hover.iot.exception.EntityNotFoundException;
 import com.hover.iot.exception.ResourceConflictException;
 import com.hover.iot.entity.Vault;
+import com.hover.iot.exception.VaultDataTransformationException;
 import com.hover.iot.repository.VaultRepository;
 import com.hover.iot.security.EncryptionProvider;
 import com.hover.iot.service.IVaultService;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * A service class that handles operations related to vault data management. Implements the {@link IVaultService} interface.
@@ -20,7 +22,7 @@ public class VaultService implements IVaultService {
     /**
      * The encryption and decryption key.
      */
-    @Value("vault.service.enc.dec.key")
+    @Value("${vault.service.enc.dec.key}")
     private String vaultKey;
 
     /**
@@ -41,6 +43,7 @@ public class VaultService implements IVaultService {
      * {@inheritDoc}
      */
     @Override
+    @Transactional
     public void add(Vault vault) {
         try {
             vaultRepository.save(vault);
@@ -53,12 +56,12 @@ public class VaultService implements IVaultService {
      * {@inheritDoc}
      */
     @Override
-    public <T> String packData(T arg) {
+    public <T> String packData(T arg) throws VaultDataTransformationException {
         try {
             var data = new ObjectMapper().writeValueAsString(arg);
             return EncryptionProvider.encrypt(data, vaultKey);
         } catch (Exception e) {
-            return null;
+            throw new VaultDataTransformationException("Error packing data ->" + e.getMessage());
         }
     }
 
@@ -66,14 +69,14 @@ public class VaultService implements IVaultService {
      * {@inheritDoc}
      */
     @Override
-    public String getData(String key) {
+    public String getData(String key) throws VaultDataTransformationException{
         var vault = vaultRepository.findVaultByKey(key)
                 .orElseThrow(() -> new EntityNotFoundException("Failed to get vault data"));
 
         try {
             return EncryptionProvider.decrypt(vault.getData(), vaultKey);
         } catch (Exception e) {
-            return null;
+            throw new VaultDataTransformationException("Error packing data ->" + e.getMessage());
         }
     }
 
@@ -81,6 +84,7 @@ public class VaultService implements IVaultService {
      * {@inheritDoc}
      */
     @Override
+    @Transactional
     public void update(@NotNull Vault vault) {
         var oldVault = vaultRepository.findVaultByKey(vault.getKey())
                 .orElseThrow(() -> new EntityNotFoundException("Failed to get vault data"));
@@ -95,6 +99,7 @@ public class VaultService implements IVaultService {
      * {@inheritDoc}
      */
     @Override
+    @Transactional
     public void delete(String key) {
         vaultRepository.deleteVaultByKey(key);
     }

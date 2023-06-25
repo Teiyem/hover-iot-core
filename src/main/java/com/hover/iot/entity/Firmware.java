@@ -52,8 +52,7 @@ public class Firmware {
      * The firmware's file.
      */
     @Lob
-    @Column(columnDefinition = "BYTEA")
-    private Blob file;
+    private byte[] file;
 
     /**
      * Initializes a new instance of {@link Firmware} class. Default Constructor.
@@ -156,7 +155,7 @@ public class Firmware {
      *
      * @return The firmware's file.
      */
-    public Blob getFile() {
+    public byte[] getFile() {
         return file;
     }
 
@@ -165,7 +164,7 @@ public class Firmware {
      *
      * @param file The firmware's file to set.
      */
-    public void setFile(Blob file) {
+    public void setFile(byte[] file) {
         this.file = file;
     }
 }

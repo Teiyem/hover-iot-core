@@ -3,9 +3,9 @@ package com.hover.iot.event;
 import org.springframework.context.ApplicationEvent;
 
 /**
- * Custom event representing the sending of a notification.
+ * An event representing the sending of a notification.
  */
-public class NotificationSendEvent extends ApplicationEvent {
+public class NotifyActionEvent extends ApplicationEvent {
 
     /**
      * The notification id.
@@ -18,13 +18,13 @@ public class NotificationSendEvent extends ApplicationEvent {
     private final String message;
 
     /**
-     * Constructs a new NotificationSendEvent.
+     * Initializes a new instance of {@link NotifyActionEvent} class.
      *
      * @param source          the source object that triggered the event
      * @param notificationId  the ID of the notification being sent
      * @param message         the message content of the notification
      */
-    public NotificationSendEvent(Object source, Long notificationId, String message) {
+    public NotifyActionEvent(Object source, Long notificationId, String message) {
         super(source);
         this.notificationId = notificationId;
         this.message = message;

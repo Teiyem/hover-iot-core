@@ -5,6 +5,7 @@ import com.hover.iot.exception.EntityNotFoundException;
 import com.hover.iot.repository.SceneRepository;
 import com.hover.iot.service.ISceneService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -33,6 +34,7 @@ public class SceneService implements ISceneService {
      * {@inheritDoc}
      */
     @Override
+    @Transactional
     public Scene create(Scene scene) {
         return sceneRepository.save(scene);
     }
@@ -41,6 +43,7 @@ public class SceneService implements ISceneService {
      * {@inheritDoc}
      */
     @Override
+    @Transactional
     public List<Scene> getAll() {
         return sceneRepository.findAll();
     }
@@ -49,6 +52,7 @@ public class SceneService implements ISceneService {
      * {@inheritDoc}
      */
     @Override
+    @Transactional
     public Scene getById(Long id) {
         return sceneRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Scene", id));
@@ -58,6 +62,7 @@ public class SceneService implements ISceneService {
      * {@inheritDoc}
      */
     @Override
+    @Transactional
     public Scene update(Scene scene) {
         return sceneRepository.save(scene);
     }
@@ -74,6 +79,7 @@ public class SceneService implements ISceneService {
      * {@inheritDoc}
      */
     @Override
+    @Transactional
     public boolean delete(Long id) {
         sceneRepository.deleteById(id);
         return true;

@@ -1,6 +1,6 @@
 package com.hover.iot.configuration;
 
-import com.hover.iot.handler.AppWebSocketHandler;
+import com.hover.iot.handler.HoverWebSocketHandler;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -28,12 +28,12 @@ public class WebSocketConfiguration implements WebSocketConfigurer {
     }
 
     /**
-     * Creates an instance of the {@link AppWebSocketHandler}.
+     * Creates an instance of the {@link HoverWebSocketHandler}.
      *
-     * @return An instance of the {@link AppWebSocketHandler}.
+     * @return An instance of the {@link HoverWebSocketHandler}.
      */
     @Bean
-    public AppWebSocketHandler appWebSocketHandler() {
-        return new AppWebSocketHandler();
+    public HoverWebSocketHandler appWebSocketHandler() {
+        return new HoverWebSocketHandler();
     }
 }

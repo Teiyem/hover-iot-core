@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
+import com.hover.iot.enumeration.DeviceStatus;
 import com.hover.iot.enumeration.DeviceType;
 import jakarta.persistence.*;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -61,7 +62,8 @@ public class Device {
     /**
      * The device's status.
      */
-    private boolean status;
+    @Enumerated(EnumType.STRING)
+    private DeviceStatus status;
 
     /**
      * The device's room.
@@ -96,6 +98,21 @@ public class Device {
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     private LocalDateTime updatedAt;
+
+    /**
+     * The device's group.
+     */
+    @JoinColumn(name = "group_id")
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JsonBackReference("group")
+    private DeviceGroup group;
+
+    /**
+     * The device's metadata.
+     */
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "device_id")
+    private List<Metadata> metadata;
 
     /**
      * Initializes a new instance of {@link Device} class.
@@ -200,7 +217,7 @@ public class Device {
      *
      * @return The device's status.
      */
-    public boolean isStatus() {
+    public DeviceStatus getStatus() {
         return status;
     }
 
@@ -209,7 +226,7 @@ public class Device {
      *
      * @param status The device's status to set.
      */
-    public void setStatus(boolean status) {
+    public void setStatus(DeviceStatus status) {
         this.status = status;
     }
 
@@ -301,6 +318,42 @@ public class Device {
      */
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    /**
+     * Gets the device's group.
+     *
+     * @return The device's group.
+     */
+    public DeviceGroup getGroup() {
+        return group;
+    }
+
+    /**
+     * Sets the device's group.
+     *
+     * @param group The device's group to set.
+     */
+    public void setGroup(DeviceGroup group) {
+        this.group = group;
+    }
+
+    /**
+     * Gets the device's metadata.
+     *
+     * @return The device's metadata.
+     */
+    public List<Metadata> getMetadata() {
+        return metadata;
+    }
+
+    /**
+     * Sets the device's metadata.
+     *
+     * @param metadata The device's metadata to set.
+     */
+    public void setMetadata(List<Metadata> metadata) {
+        this.metadata = metadata;
     }
 
     /**

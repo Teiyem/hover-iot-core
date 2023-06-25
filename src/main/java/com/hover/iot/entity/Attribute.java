@@ -68,28 +68,28 @@ public class Attribute {
     }
 
     /**
-     * Initializes a new instance of {@link Attribute} class with the given arguments..
+     * Initializes a new instance of {@link Attribute}.
      *
      * @param id    The attribute's id.
      * @param name  The attribute's name.
      * @param value The attribute's value.
      * @param type  The attribute's type.
-     * @throws InvalidAttributeValueException if the value is not of the correct type for this attribute
+     * @throws InvalidAttributeValueException if the value is not of the correct type for this attribute.
      */
     public Attribute(Long id, String name, Object value, AttributeType type) {
         this.id = id;
         this.name = name;
         this.type = type;
-        this.value = value;
+        setValue(value);
     }
 
     /**
-     * Initializes a new instance of {@link Attribute} class with the given arguments..
+     * Initializes a new instance of {@link Attribute}.
      *
      * @param name  The attribute's name.
      * @param value The attribute's value.
      * @param type  The attribute's type.
-     * @throws InvalidAttributeValueException if the value is not of the correct type for this attribute
+     * @throws InvalidAttributeValueException if the value is not of the correct type for this attribute.
      */
     public Attribute(String name, Object value, AttributeType type) {
         this.name = name;
@@ -98,7 +98,7 @@ public class Attribute {
     }
 
     /**
-     * Gets the attribute's id
+     * Gets the attribute's id.
      *
      * @return The attribute's id.
      */
@@ -107,7 +107,7 @@ public class Attribute {
     }
 
     /**
-     * Gets the attribute's name
+     * Gets the attribute's name.
      *
      * @return The attribute's name.
      */
@@ -116,7 +116,7 @@ public class Attribute {
     }
 
     /**
-     * Gets the attribute's value
+     * Gets the attribute's value.
      *
      * @return The attribute's value.
      */
@@ -127,8 +127,8 @@ public class Attribute {
     /**
      * Sets the value of the attribute.
      *
-     * @param value the value to set
-     * @throws InvalidAttributeValueException if the value is not a supported type
+     * @param value The value to set.
+     * @throws InvalidAttributeValueException if the value is not a supported type.
      */
     public void setValue(Object value) {
         if (value instanceof String || value instanceof Boolean || value instanceof Integer || value instanceof Float
@@ -139,7 +139,7 @@ public class Attribute {
     }
 
     /**
-     * Gets the attribute's type
+     * Gets the attribute's type.
      *
      * @return The attribute's type.
      */

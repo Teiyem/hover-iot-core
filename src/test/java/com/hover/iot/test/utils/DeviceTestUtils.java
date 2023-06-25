@@ -4,6 +4,7 @@ import com.hover.iot.entity.Attribute;
 import com.hover.iot.entity.Device;
 import com.hover.iot.entity.Room;
 import com.hover.iot.enumeration.AttributeType;
+import com.hover.iot.enumeration.DeviceStatus;
 import com.hover.iot.enumeration.DeviceType;
 import com.hover.iot.model.Credentials;
 import com.hover.iot.request.AddDeviceRequest;
@@ -88,7 +89,7 @@ public class DeviceTestUtils {
         device.setAttributes(Collections.singletonList(new Attribute("state",
                 false, AttributeType.BOOLEAN)));
         device.setFirmware("1.0");
-        device.setStatus(true);
+        device.setStatus(DeviceStatus.ONLINE);
         device.setType(DeviceType.LIGHT);
         device.setRoom(createTestRoom());
         device.setPlatform("Hover");

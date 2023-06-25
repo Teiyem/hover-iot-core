@@ -3,7 +3,6 @@ package com.hover.iot.mapper;
 import com.hover.iot.dto.DeviceDTO;
 import com.hover.iot.dto.RoomDTO;
 import com.hover.iot.entity.Device;
-import com.hover.iot.entity.Room;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 
@@ -29,7 +28,7 @@ public class DeviceDTOMapper implements Function<Device, DeviceDTO> {
                 device.getName(),
                 device.getAttributes(),
                 device.getFirmware(),
-                device.isStatus(),
+                device.getStatus(),
                 new RoomDTO(room.getId(),room.getName()),
                 device.getType(),
                 device.getPlatform()

@@ -1,13 +1,13 @@
 package com.hover.iot.service.implementation;
 
 import com.hover.iot.dto.RoomDTO;
+import com.hover.iot.entity.Room;
 import com.hover.iot.exception.EntityNotFoundException;
 import com.hover.iot.mapper.RoomDTOMapper;
-import com.hover.iot.entity.Room;
 import com.hover.iot.repository.RoomRepository;
-import com.hover.iot.service.IDeviceService;
 import com.hover.iot.service.IRoomService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 public class RoomService implements IRoomService {
 
     /**
-     * The room repository.
+     * The repository that is used for room data storage and retrieval.
      */
     private final RoomRepository roomRepository;
 
@@ -31,8 +31,8 @@ public class RoomService implements IRoomService {
     /**
      * Initializes a new instance of {@link DeviceService} class.
      *
-     * @param roomRepository The room repository.
-     * @param roomDTOMapper The DTO mapper for rooms
+     * @param roomRepository The repository that is used for room data storage and retrieval.
+     * @param roomDTOMapper  The DTO mapper for rooms
      */
     public RoomService(RoomRepository roomRepository, RoomDTOMapper roomDTOMapper) {
         this.roomRepository = roomRepository;
@@ -43,6 +43,7 @@ public class RoomService implements IRoomService {
      * {@inheritDoc}
      */
     @Override
+    @Transactional
     public void add(String name) {
         var room = new Room();
         room.setName(name);
@@ -54,6 +55,17 @@ public class RoomService implements IRoomService {
      * {@inheritDoc}
      */
     @Override
+    @Transactional
+    public Room getByName(String name) {
+        return roomRepository.findByName(name).orElseThrow(() ->
+                new EntityNotFoundException(Room.class.getSimpleName(), name));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @Transactional
     public List<RoomDTO> getAll() {
         return roomRepository.findAll()
                 .stream()
@@ -65,11 +77,12 @@ public class RoomService implements IRoomService {
      * {@inheritDoc}
      */
     @Override
+    @Transactional
     public boolean update(Long id, String name) {
         var room = roomRepository.findById(id).orElseThrow(() ->
                 new EntityNotFoundException(Room.class.getSimpleName(), id));
 
-        if(room.getName().equals(name)){
+        if (room.getName().equals(name)) {
             return false;
         }
 
@@ -84,7 +97,9 @@ public class RoomService implements IRoomService {
      * {@inheritDoc}
      */
     @Override
+    @Transactional
     public boolean delete(Long id) {
-        return false;
+        roomRepository.deleteById(id);
+        return true;
     }
 }

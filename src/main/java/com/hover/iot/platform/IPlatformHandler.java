@@ -10,7 +10,7 @@ import com.hover.iot.exception.PlatformApiException;
  *
  * @implNote Provide the necessary methods to control devices and perform platform-specific operations.
  */
-public interface IPlatformApi {
+public interface IPlatformHandler {
 
     /**
      * Gets the name o the platform.

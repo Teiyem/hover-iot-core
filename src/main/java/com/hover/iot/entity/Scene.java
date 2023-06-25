@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
-import com.hover.iot.entity.SceneAction;
 import jakarta.persistence.*;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -39,24 +38,24 @@ public class Scene {
     private String name;
 
     /**
-     * The trigger's description.
+     * The scene's description.
      */
     private String description;
 
     /**
-     * The rule's triggers.
+     * The scene's action.
      */
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "scene_id")
     private List<SceneAction> actions;
 
     /**
-     * Whether rule is enabled or not.
+     * Whether scene is running or not.
      */
-    private boolean enabled;
+    private boolean isRunning;
 
     /**
-     * The rule's updated at date.
+     * The scene's updated at date.
      */
     @UpdateTimestamp
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
@@ -160,23 +159,22 @@ public class Scene {
     }
 
     /**
-     * Gets whether the scene is enabled or not.
+     * Gets whether the scene is running or not.
      *
-     * @return Whether the scene is enabled or not.
+     * @return Whether the scene is running or not.
      */
-    public boolean isEnabled() {
-        return enabled;
+    public boolean isIsRunning() {
+        return isRunning;
     }
 
     /**
-     * Sets whether the scene is enabled or not.
+     * Sets whether the scene is running or not.
      *
-     * @param enabled Whether the scene is enabled or not.
+     * @param enabled Whether the scene is running or not.
      */
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
+    public void setIsRunning(boolean enabled) {
+        this.isRunning = enabled;
     }
-
 }
 
 

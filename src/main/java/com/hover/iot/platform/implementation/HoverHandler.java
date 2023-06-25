@@ -4,19 +4,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hover.iot.entity.Attribute;
 import com.hover.iot.entity.Device;
 import com.hover.iot.mapper.AttributeDTOMapper;
-import com.hover.iot.platform.IPlatformApi;
+import com.hover.iot.platform.IPlatformHandler;
 import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 /**
- * Implementation of the {@link IPlatformApi} interface for the Hover platform.
+ * Implementation of the {@link IPlatformHandler} interface for the Hover platform.
  * Provides platform-specific methods for interacting with Hover devices.
  */
 @Component
-public class HoverApi implements IPlatformApi {
+public class HoverHandler implements IPlatformHandler {
 
     /**
      * The http client that is used to make requests.
@@ -34,13 +32,13 @@ public class HoverApi implements IPlatformApi {
     private final AttributeDTOMapper attributeDTOMapper;
 
     /**
-     * Initializes a new instance of {@link HoverApi} class.
+     * Initializes a new instance of {@link HoverHandler} class.
      *
      * @param httpClient         The http client that is used to make requests.
      * @param objectMapper       The object mapper for JSON serialization and deserialization.
      * @param attributeDTOMapper The DTO mapper for attributes.
      */
-    public HoverApi(OkHttpClient httpClient, ObjectMapper objectMapper, AttributeDTOMapper attributeDTOMapper) {
+    public HoverHandler(OkHttpClient httpClient, ObjectMapper objectMapper, AttributeDTOMapper attributeDTOMapper) {
         this.httpClient = httpClient;
         this.objectMapper = objectMapper;
         this.attributeDTOMapper = attributeDTOMapper;

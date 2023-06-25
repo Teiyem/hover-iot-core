@@ -5,24 +5,27 @@ import com.hover.iot.entity.Device;
 import com.hover.iot.entity.Room;
 import com.hover.iot.entity.Vault;
 import com.hover.iot.enumeration.ChangeType;
+import com.hover.iot.enumeration.DeviceStatus;
 import com.hover.iot.enumeration.DeviceType;
 import com.hover.iot.event.EntityChangeEvent;
 import com.hover.iot.exception.EntityNotFoundException;
 import com.hover.iot.mapper.DeviceDTOMapper;
 import com.hover.iot.model.Credentials;
-import com.hover.iot.platform.IPlatformApi;
+import com.hover.iot.platform.IPlatformHandler;
 import com.hover.iot.repository.DeviceRepository;
-import com.hover.iot.repository.RoomRepository;
 import com.hover.iot.request.AddDeviceRequest;
 import com.hover.iot.request.DeviceAttributeRequest;
 import com.hover.iot.request.UpdateDeviceRequest;
 import com.hover.iot.service.IDeviceService;
+import com.hover.iot.service.IRoomService;
+import com.hover.iot.service.IVaultService;
 import com.hover.iot.util.UniqueIdentifierGenerator;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
@@ -53,9 +56,9 @@ public class DeviceService implements IDeviceService {
     private final DeviceRepository deviceRepository;
 
     /**
-     * The repository that is used for room data storage and retrieval.
+     * The service that is used to handle room management.
      */
-    private final RoomRepository roomRepository;
+    private final IRoomService roomService;
 
     /**
      * The DTO mapper for devices.
@@ -63,41 +66,42 @@ public class DeviceService implements IDeviceService {
     private final DeviceDTOMapper deviceDTOMapper;
 
     /**
-     * The vault service.
+     * The service that is used to handle db secret data.
      */
-    private final VaultService vaultService;
+    private final IVaultService vaultService;
 
     /**
      * A map that stores platform names as keys and corresponding PlatformApi instances as values.
      */
-    private final Map<String, IPlatformApi> platformApiMap;
+    private final Map<String, IPlatformHandler> platformApiMap;
 
     /**
      * Initializes a new instance of {@link DeviceService} class.
      *
      * @param eventPublisher   The event publisher.
-     * @param deviceRepository The device repository.
-     * @param roomRepository   The room repository.
+     * @param deviceRepository The repository that is used for device data storage and retrieval..
+     * @param roomService      The service that is used to handle room management..
      * @param deviceDTOMapper  The DTO mapper for devices.
-     * @param vaultService     The vault service.
+     * @param vaultService     The service that is used to handle db secret data.
      * @param platformApiList  The list of platform apis.
      */
     public DeviceService(ApplicationEventPublisher eventPublisher, DeviceRepository deviceRepository,
-                         RoomRepository roomRepository, DeviceDTOMapper deviceDTOMapper, VaultService vaultService,
-                         @NotNull List<IPlatformApi> platformApiList) {
+                         IRoomService roomService, DeviceDTOMapper deviceDTOMapper, VaultService vaultService,
+                         @NotNull List<IPlatformHandler> platformApiList) {
         this.eventPublisher = eventPublisher;
         this.deviceRepository = deviceRepository;
-        this.roomRepository = roomRepository;
+        this.roomService = roomService;
         this.deviceDTOMapper = deviceDTOMapper;
         this.vaultService = vaultService;
         this.platformApiMap = platformApiList.stream()
-                .collect(Collectors.toMap(IPlatformApi::getName, Function.identity()));
+                .collect(Collectors.toMap(IPlatformHandler::getName, Function.identity()));
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
+    @Transactional
     public void add(@NotNull AddDeviceRequest request) {
         var device = new Device();
 
@@ -105,11 +109,11 @@ public class DeviceService implements IDeviceService {
         device.setHost(request.host());
         device.setAttributes(request.attributes());
         device.setFirmware(request.firmware());
-        device.setStatus(true);
+        device.setStatus(DeviceStatus.ONLINE);
         device.setType(request.type());
         device.setPlatform(request.platform());
 
-        com.hover.iot.entity.Room room = getRoom(request.room());
+        var room = getRoom(request.room());
 
         device.setRoom(room);
 
@@ -149,6 +153,7 @@ public class DeviceService implements IDeviceService {
      * {@inheritDoc}
      */
     @Override
+    @Transactional
     public DeviceDTO getById(Long id) {
         return deviceRepository.findById(id)
                 .map(deviceDTOMapper).orElseThrow(() ->
@@ -159,6 +164,7 @@ public class DeviceService implements IDeviceService {
      * {@inheritDoc}
      */
     @Override
+    @Transactional
     public List<DeviceDTO> getByRoom(String name) {
         return deviceRepository.findDevicesByRoomName(name)
                 .stream()
@@ -170,17 +176,19 @@ public class DeviceService implements IDeviceService {
      * {@inheritDoc}
      */
     @Override
+    @Transactional
     public List<DeviceDTO> getByType(DeviceType type) {
-       return deviceRepository.findDevicesByType(type)
-               .stream()
-               .map(deviceDTOMapper)
-               .collect(Collectors.toList());
+        return deviceRepository.findDevicesByType(type)
+                .stream()
+                .map(deviceDTOMapper)
+                .collect(Collectors.toList());
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
+    @Transactional
     public List<DeviceDTO> getAll() {
         return deviceRepository.findAll()
                 .stream()
@@ -192,6 +200,7 @@ public class DeviceService implements IDeviceService {
      * {@inheritDoc}
      */
     @Override
+    @Transactional
     public DeviceDTO update(Long id, @NotNull UpdateDeviceRequest request) {
         var device = deviceRepository.findById(id).orElseThrow(() ->
                 new EntityNotFoundException(Device.class.getSimpleName(), id));
@@ -231,9 +240,10 @@ public class DeviceService implements IDeviceService {
      * {@inheritDoc}
      */
     @Override
+    @Transactional
     public boolean delete(Long id) {
         var device = deviceRepository.findById(id).orElseThrow(() ->
-                        new EntityNotFoundException(Device.class.getSimpleName(), id));
+                new EntityNotFoundException(Device.class.getSimpleName(), id));
         deviceRepository.delete(device);
         processDeviceChanges(device, ChangeType.DELETED, false);
         return true;
@@ -253,7 +263,7 @@ public class DeviceService implements IDeviceService {
             for (var _attribute : request.attributes()) {
                 if (Objects.equals(attribute.getName(), _attribute.getName())) {
                     if (!Objects.equals(attribute.getValue(), _attribute.getValue())) {
-                        IPlatformApi platformApi = platformApiMap.get(device.getPlatform());
+                        IPlatformHandler platformApi = platformApiMap.get(device.getPlatform());
                         try {
                             platformApi.writeAttribute(device, attribute);
                         } catch (Exception e) {
@@ -273,8 +283,7 @@ public class DeviceService implements IDeviceService {
      * @throws EntityNotFoundException If the room does not exist.
      */
     private Room getRoom(@NotNull String name) {
-        return roomRepository.findByName(name)
-                .orElseThrow(() -> new EntityNotFoundException("Room with name -> " + name));
+        return roomService.getByName(name);
     }
 
     /**

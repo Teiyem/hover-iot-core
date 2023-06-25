@@ -6,10 +6,7 @@ import com.hover.iot.constants.RuleParameterConstants;
 import com.hover.iot.engine.IRuleEngine;
 import com.hover.iot.entity.*;
 import com.hover.iot.enumeration.TriggerType;
-import com.hover.iot.event.NotificationSendEvent;
-import com.hover.iot.event.AttributeWriteEvent;
-import com.hover.iot.event.RuleActionExecErrorEvent;
-import com.hover.iot.event.SceneExecEvent;
+import com.hover.iot.event.*;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +25,7 @@ import java.util.concurrent.locks.StampedLock;
 import static com.hover.iot.constants.RuleParameterConstants.*;
 
 /**
- * A Rule Engine for evaluating and executing automation rules.
+ * A Rule Engine for evaluating and executing automation rules. Implements the {@link IRuleEngine} interface.
  */
 @Component
 public class RuleEngine implements IRuleEngine {
@@ -115,16 +112,22 @@ public class RuleEngine implements IRuleEngine {
      * {@inheritDoc}
      */
     @Override
-    public void unregisterRule(Rule rule) {
+    public void unregisterRule(@NotNull Rule rule) {
+        LOGGER.debug("Cancelling rule with id -> {}", rule.getId());
+
         var stamp = lock.writeLock();
         try {
             rules.remove(rule);
 
             var schedule = scheduledFutures.get(rule);
 
-            if(schedule != null && !schedule.isCancelled())
+            if (schedule != null) {
+                if (!schedule.isCancelled()) {
+                    LOGGER.debug("Cancelling running schedule");
+                    schedule.cancel(true);
+                }
                 scheduledFutures.remove(rule);
-
+            }
         } finally {
             lock.unlockWrite(stamp);
         }
@@ -134,7 +137,8 @@ public class RuleEngine implements IRuleEngine {
      * {@inheritDoc}
      */
     @Override
-    public void evaluatePossibleTrigger(Device device) {
+    public void evaluatePossibleTrigger(@NotNull Device device) {
+        LOGGER.debug("Evaluating possible rule from device -> {}", device.getId());
         var stamp = lock.readLock();
         try {
             for (var rule : rules) {
@@ -144,7 +148,7 @@ public class RuleEngine implements IRuleEngine {
                 if (trigger == null)
                     continue;
 
-                if(trigger.getType() == TriggerType.ATTRIBUTE_THRESHOLD) {
+                if (trigger.getType() == TriggerType.ATTRIBUTE_THRESHOLD) {
                     evaluateAttributeThreshold(rule, device, trigger);
                     continue;
                 }
@@ -254,7 +258,7 @@ public class RuleEngine implements IRuleEngine {
 
         try {
             var attribute = objectMapper.readValue(obj, Attribute.class);
-            eventPublisher.publishEvent(new AttributeWriteEvent(this, entityId, attribute));
+            eventPublisher.publishEvent(new AttributeActionEvent(this, entityId, attribute));
 
         } catch (JsonProcessingException e) {
             handleActionExecutionError(action, e);
@@ -270,7 +274,7 @@ public class RuleEngine implements IRuleEngine {
         var parameters = action.getParameters();
         var entityId = (Long) parameters.get(RULE_PARAMETER_ENTITY_ID_KEY);
 
-        eventPublisher.publishEvent(new SceneExecEvent(this, entityId));
+        eventPublisher.publishEvent(new SceneActionEvent(this, entityId));
     }
 
     /**
@@ -283,7 +287,7 @@ public class RuleEngine implements IRuleEngine {
         var id = (Long) parameters.get(RULE_PARAMETER_ENTITY_ID_KEY);
         var message = (String) parameters.get(RULE_PARAMETER_NOTIFICATION_MESSAGE_KEY);
 
-        eventPublisher.publishEvent(new NotificationSendEvent(this, id, message));
+        eventPublisher.publishEvent(new NotifyActionEvent(this, id, message));
     }
 
     /**
@@ -293,7 +297,7 @@ public class RuleEngine implements IRuleEngine {
      * @param e      The exception that occurred during the execution of the rule action.
      */
     private void handleActionExecutionError(RuleAction action, Exception e) {
-        eventPublisher.publishEvent(new RuleActionExecErrorEvent(this, action));
+        eventPublisher.publishEvent(new RuleActionEvent(this, action, false));
         LOGGER.error("An error occurred while attempting to execute the rule action -> {}", action, e);
     }
 

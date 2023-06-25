@@ -1,8 +1,11 @@
-package com.hover.iot.event;
+package com.hover.iot.event.listener;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hover.iot.handler.AppWebSocketHandler;
+import com.hover.iot.event.EntityChangeEvent;
+import com.hover.iot.handler.HoverWebSocketHandler;
 import com.hover.iot.model.EventNotification;
+import com.hover.iot.service.INotificationService;
+import com.hover.iot.service.implementation.DiscoveryService;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,25 +18,15 @@ import java.io.IOException;
  * An event listener for {@link EntityChangeEvent} that handles entity-related events.
  */
 @Component
-public class EntityEventListener implements ApplicationListener<EntityChangeEvent> {
+public class EntityEventListener extends BaseEventListener<EntityChangeEvent>{
 
     /**
-     * Handler for WebSocket connections in the application.
-     */
-    private final AppWebSocketHandler appWebSocketHandler;
-
-    /**
-     * Logger for logging events in the EntityEventListener class.
-     */
-    private static final Logger logger = LoggerFactory.getLogger(EntityEventListener.class);
-
-    /**
-     * Constructs an EntityEventListener with the specified WebSocketHandler.
+     * Initializes a new instance of {@link EntityEventListener} class.
      *
-     * @param appWebSocketHandler The WebSocketHandler to use for handling entity events
+     * @param notificationService The service used to send notifications using Websockets.
      */
-    public EntityEventListener(AppWebSocketHandler appWebSocketHandler) {
-        this.appWebSocketHandler = appWebSocketHandler;
+    public EntityEventListener(INotificationService notificationService) {
+        super(notificationService);
     }
 
     /**
@@ -43,17 +36,17 @@ public class EntityEventListener implements ApplicationListener<EntityChangeEven
      */
     @Override
     public void onApplicationEvent(@NotNull EntityChangeEvent event) {
+        LOGGER.debug("Received event -> " + event);
+
         var notification = new EventNotification();
 
         notification.setType("entity" +":" + event.getEntityName());
 
         try {
             notification.setData(new ObjectMapper().writeValueAsString(event.getEntity()));
-            appWebSocketHandler.notify(notification);
+            notificationService.send(notification);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            LOGGER.error("An error occurred while attempting to send notification -> " + e);
         }
-
-        logger.info("Received event: " + event);
     }
 }

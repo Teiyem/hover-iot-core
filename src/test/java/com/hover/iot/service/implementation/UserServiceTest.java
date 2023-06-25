@@ -1,5 +1,6 @@
 package com.hover.iot.service.implementation;
 
+import com.hover.iot.dto.UserDTO;
 import com.hover.iot.enumeration.TokenType;
 import com.hover.iot.exception.ResourceConflictException;
 import com.hover.iot.entity.User;
@@ -77,15 +78,13 @@ public class UserServiceTest {
         // Given
         var loginRequest = new LoginRequest("johndoe", "password");
 
-        var authenticationResponse =
-                new AuthenticationResponse("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODk",
-                        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.qvH8K0WuQPR4gY7VJspvTP8a7V9F9",
-                        getExpirationTime("7m"),
-                                getExpirationTime("7d"));
-
-        var user = new User("John Doe", "johndoe", passwordEncoder.encode("password"),
+        var user = new User(1, "John Doe", "johndoe", passwordEncoder.encode("password"),
                 new ArrayList<>());
 
+        var authenticationResponse =
+                new AuthenticationResponse(new UserDTO(user.getId(), user.getName(), user.getUsername()),"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODk",
+                        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.qvH8K0WuQPR4gY7VJspvTP8a7V9F9",
+                        getExpirationTime("7m"));
 
         // Mock
         when(userRepository.findByUsername(loginRequest.username())).thenReturn(Optional.of(user));

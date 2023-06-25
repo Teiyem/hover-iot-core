@@ -4,6 +4,9 @@ import com.hover.iot.entity.Device;
 import com.hover.iot.entity.Rule;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * A rule engine interface that defines methods for evaluating and executing automation rules.
+ */
 public interface IRuleEngine {
 
     /**
@@ -18,12 +21,12 @@ public interface IRuleEngine {
      *
      * @param rule The Rule to unregister.
      */
-    void unregisterRule(Rule rule);
+    void unregisterRule(@NotNull Rule rule);
 
     /**
      * Evaluates the possible triggers for a given device and executes the associated actions.
      *
      * @param device the Device for which to evaluate the triggers
      */
-    void evaluatePossibleTrigger(Device device);
+    void evaluatePossibleTrigger(@NotNull Device device);
 }

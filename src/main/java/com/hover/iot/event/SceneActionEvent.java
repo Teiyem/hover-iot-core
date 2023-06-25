@@ -3,10 +3,13 @@ package com.hover.iot.event;
 import org.springframework.context.ApplicationEvent;
 
 /**
- * Custom event representing the execution of a scene.
+ * An event representing an execution of a scene.
  */
-public class SceneExecEvent extends ApplicationEvent {
+public class SceneActionEvent extends ApplicationEvent {
 
+    /**
+     * The id of the scene to execute.
+     */
     private final Long sceneId;
 
     /**
@@ -15,7 +18,7 @@ public class SceneExecEvent extends ApplicationEvent {
      * @param source   the source object that triggered the event
      * @param sceneId  the ID of the scene being executed
      */
-    public SceneExecEvent(Object source, Long sceneId) {
+    public SceneActionEvent(Object source, Long sceneId) {
         super(source);
         this.sceneId = sceneId;
     }

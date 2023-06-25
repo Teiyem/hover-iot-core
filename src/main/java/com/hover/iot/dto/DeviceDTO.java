@@ -3,6 +3,7 @@ package com.hover.iot.dto;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.hover.iot.entity.Attribute;
 import com.hover.iot.entity.Device;
+import com.hover.iot.enumeration.DeviceStatus;
 import com.hover.iot.enumeration.DeviceType;
 
 import java.util.List;
@@ -20,7 +21,7 @@ import java.util.List;
  * @param platform   The device's platform.
  */
 @JsonTypeName("device")
-public record DeviceDTO(Long id, String name, List<Attribute> attributes, String firmware, boolean status, RoomDTO room,
+public record DeviceDTO(Long id, String name, List<Attribute> attributes, String firmware, DeviceStatus status, RoomDTO room,
                         DeviceType type, String platform) {
 }
 

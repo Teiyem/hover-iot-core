@@ -1,5 +1,6 @@
 package com.hover.iot.service.implementation;
 
+import com.hover.iot.dto.UserDTO;
 import com.hover.iot.enumeration.TokenType;
 import com.hover.iot.exception.EntityNotFoundException;
 import com.hover.iot.exception.ResourceConflictException;
@@ -135,8 +136,9 @@ public class UserService implements IUserService {
 
         userRepository.save(user);
 
-        return new AuthenticationResponse(accessTokenResult.token(), refreshTokenResult.token(),
-                accessTokenResult.exp(), refreshTokenResult.exp());
+        return new AuthenticationResponse(new UserDTO(user.getId(), user.getName(), user.getUsername()),
+                accessTokenResult.token(), refreshTokenResult.token(),
+                accessTokenResult.exp());
     }
 
     /**

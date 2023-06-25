@@ -1,6 +1,9 @@
 package com.hover.iot.service;
 
 import com.hover.iot.dto.RoomDTO;
+import com.hover.iot.entity.Room;
+import com.hover.iot.exception.EntityNotFoundException;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -17,6 +20,14 @@ public interface IRoomService {
     void add(String name);
 
     /**
+     * Gets the room by name
+     * @param name The name of the room to get.
+     * @return The room.
+     * @throws EntityNotFoundException If the room does not exist.
+     */
+    Room getByName(String name);
+
+    /**
      * Gets a list of all room.
      *
      * @return The list of DTO representations of rooms.
@@ -29,6 +40,7 @@ public interface IRoomService {
      * @param id   The ID of the room to update.
      * @param name The new room name.
      * @return true If the room was successfully updated, otherwise false.
+     * @throws EntityNotFoundException If the room does not exist.
      */
     boolean update(Long id, String name);
 

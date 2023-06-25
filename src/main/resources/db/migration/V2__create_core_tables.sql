@@ -11,6 +11,12 @@ CREATE TABLE TBL_ROOM
     name TEXT NOT NULL
 );
 
+CREATE TABLE TBL_DEVICE_GROUP
+(
+    id   BIGSERIAL PRIMARY KEY,
+    name TEXT NOT NULL
+);
+
 CREATE TABLE TBL_DEVICE
 (
     id         BIGSERIAL PRIMARY KEY,
@@ -19,11 +25,13 @@ CREATE TABLE TBL_DEVICE
     firmware   TEXT        NOT NULL,
     status     TEXT        NOT NULL,
     room_id    BIGINT REFERENCES TBL_ROOM (id),
+    group_id   BIGINT REFERENCES TBL_DEVICE_GROUP (id),
     type       TEXT        NOT NULL,
     platform   TEXT        NOT NULL,
     uuid       TEXT UNIQUE NOT NULL,
     updated_at DATE        NOT NULL
 );
+
 
 CREATE TABLE TBL_ATTRIBUTE
 (
@@ -33,6 +41,14 @@ CREATE TABLE TBL_ATTRIBUTE
     type       TEXT NOT NULL,
     updated_at DATE NOT NULL,
     device_id  BIGINT REFERENCES TBL_DEVICE (id)
+);
+
+CREATE TABLE TBL_METADATA
+(
+    id        BIGSERIAL PRIMARY KEY,
+    key       TEXT NOT NULL,
+    value     TEXT NOT NULL,
+    device_id BIGINT REFERENCES TBL_DEVICE (id)
 );
 
 CREATE TABLE TBL_FIRMWARE

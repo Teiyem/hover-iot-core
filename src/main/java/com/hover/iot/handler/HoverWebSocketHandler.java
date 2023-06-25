@@ -13,7 +13,7 @@ import java.util.Set;
 /**
  * A WebSocket handler for handling WebSocket events and notifications.
  */
-public class AppWebSocketHandler implements WebSocketHandler, IEventNotifier {
+public class HoverWebSocketHandler implements WebSocketHandler, IEventNotifier {
 
     /**
      * Object mapper for converting objects to JSON and vice versa.
@@ -29,7 +29,7 @@ public class AppWebSocketHandler implements WebSocketHandler, IEventNotifier {
      * Invoked after a WebSocket connection is established.
      * Adds the session to the active sessions set.
      *
-     * @param session the WebSocket session
+     * @param session The WebSocket session.
      */
     @Override
     public void afterConnectionEstablished(@NotNull WebSocketSession session) {
@@ -39,8 +39,8 @@ public class AppWebSocketHandler implements WebSocketHandler, IEventNotifier {
     /**
      * Invoked when a WebSocket message is received. Handles incoming messages from clients.
      *
-     * @param session the WebSocket session
-     * @param message the incoming message
+     * @param session The WebSocket session.
+     * @param message The incoming message.
      */
     @Override
     public void handleMessage(@NotNull WebSocketSession session, @NotNull WebSocketMessage<?> message) {
@@ -51,7 +51,7 @@ public class AppWebSocketHandler implements WebSocketHandler, IEventNotifier {
      * Invoked when a transport error occurs in the WebSocket session.
      *
      * @param session   The WebSocket session.
-     * @param exception The exception representing the transport error
+     * @param exception The exception representing the transport error.
      */
     @Override
     public void handleTransportError(@NotNull WebSocketSession session, @NotNull Throwable exception) {
@@ -64,7 +64,7 @@ public class AppWebSocketHandler implements WebSocketHandler, IEventNotifier {
      *
      * @param session The WebSocket session.
      * @param status  The close status.
-     * @throws Exception if an error occurs during handling
+     * @throws Exception if an error occurs during handling.
      */
     @Override
     public void afterConnectionClosed(@NotNull WebSocketSession session, @NotNull CloseStatus status) throws Exception {

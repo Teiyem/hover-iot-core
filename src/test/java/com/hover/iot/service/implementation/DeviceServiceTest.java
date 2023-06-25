@@ -6,9 +6,8 @@ import com.hover.iot.entity.Device;
 import com.hover.iot.event.EntityChangeEvent;
 import com.hover.iot.exception.EntityNotFoundException;
 import com.hover.iot.mapper.DeviceDTOMapper;
-import com.hover.iot.platform.IPlatformApi;
+import com.hover.iot.platform.IPlatformHandler;
 import com.hover.iot.repository.DeviceRepository;
-import com.hover.iot.repository.RoomRepository;
 import com.hover.iot.test.utils.DeviceTestUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -43,10 +42,10 @@ public class DeviceServiceTest {
     private DeviceService deviceService;
 
     @Mock
-    private RoomRepository roomRepository;
+    private RoomService roomService;
 
     @Mock
-    private List<IPlatformApi> platformApiList = new ArrayList<>();
+    private List<IPlatformHandler> platformApiList = new ArrayList<>();
 
     @Test
     public void testAdd_ValidRequest() {
@@ -55,7 +54,7 @@ public class DeviceServiceTest {
         var room = DeviceTestUtils.createTestRoom();
 
         // Mock
-        when(roomRepository.findByName(request.room())).thenReturn(Optional.of(room));
+        when(roomService.getByName(request.room())).thenReturn(room);
 
         // When
         deviceService.add(request);
@@ -75,7 +74,7 @@ public class DeviceServiceTest {
         // Mock
         when(deviceRepository.findById(device.getId())).thenReturn(Optional.of(device));
         when(deviceDTOMapper.apply(device)).thenReturn(new DeviceDTO(device.getId(), device.getName(),
-                device.getAttributes(), device.getFirmware(),device.isStatus(), new RoomDTO(room.getId(), room.getName()),
+                device.getAttributes(), device.getFirmware(),device.getStatus(), new RoomDTO(room.getId(), room.getName()),
                 device.getType(), device.getPlatform()));
 
         // When
@@ -135,7 +134,7 @@ public class DeviceServiceTest {
         var room = newDevice.getRoom();
 
         var expected = new DeviceDTO(newDevice.getId(), newDevice.getName(),
-                newDevice.getAttributes(), newDevice.getFirmware(),newDevice.isStatus(), new RoomDTO(room.getId(), room.getName()),
+                newDevice.getAttributes(), newDevice.getFirmware(),newDevice.getStatus(), new RoomDTO(room.getId(), room.getName()),
                 newDevice.getType(),
                 newDevice.getPlatform());
 
