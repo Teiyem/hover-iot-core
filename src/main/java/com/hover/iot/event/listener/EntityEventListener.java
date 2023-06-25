@@ -2,14 +2,9 @@ package com.hover.iot.event.listener;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hover.iot.event.EntityChangeEvent;
-import com.hover.iot.handler.HoverWebSocketHandler;
 import com.hover.iot.model.EventNotification;
 import com.hover.iot.service.INotificationService;
-import com.hover.iot.service.implementation.DiscoveryService;
 import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
